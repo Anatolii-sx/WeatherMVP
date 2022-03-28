@@ -1,5 +1,5 @@
 //
-//  daysTemperatureTableViewCell.swift
+//  DayTemperatureTableViewCell.swift
 //  Weather
 //
 //  Created by Анатолий Миронов on 26.03.2022.

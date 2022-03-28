@@ -108,6 +108,8 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     // MARK: - Methods of ViewController's Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        getWeatherForecast()
        
         view.backgroundColor = .purple
         view.addSubview(mainScrollView)
@@ -216,6 +218,19 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
             moreDescriptionTableView.heightAnchor.constraint(equalToConstant: 10 * 65),
             moreDescriptionTableView.rightAnchor.constraint(equalTo: mainStackView.rightAnchor, constant: -16)
         ])
+    }
+}
+
+extension MainViewController {
+    private func getWeatherForecast() {
+        NetworkManager.shared.fetchWeather(url: NetworkManager.shared.url) { result in
+            switch result {
+            case .success(let weatherForecast):
+                print(weatherForecast)
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 }
 

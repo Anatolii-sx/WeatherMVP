@@ -22,23 +22,25 @@ class DayTemperatureTableViewCell: UITableViewCell {
         return weatherPicture
     }()
     
-    private lazy var maxTemperatureDay: UILabel =  {
-        let maxTemperatureDay = UILabel()
-        maxTemperatureDay.font = .systemFont(ofSize: 18, weight: .medium)
-        maxTemperatureDay.textColor = .black
-        return maxTemperatureDay
+    private lazy var maxTemperature: UILabel =  {
+        let maxTemperature = UILabel()
+        maxTemperature.font = .systemFont(ofSize: 18, weight: .medium)
+        maxTemperature.textColor = .black
+        maxTemperature.textAlignment = .right
+        return maxTemperature
     }()
     
-    private lazy var minTemperatureNight: UILabel =  {
-        let minTemperatureNight = UILabel()
-        minTemperatureNight.font = .systemFont(ofSize: 18, weight: .medium)
-        minTemperatureNight.textColor = .black
-        return minTemperatureNight
+    private lazy var minTemperature: UILabel =  {
+        let minTemperature = UILabel()
+        minTemperature.font = .systemFont(ofSize: 18, weight: .medium)
+        minTemperature.textColor = .black
+        minTemperature.textAlignment = .right
+        return minTemperature
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        addSubviews(dayLabel, weatherPicture, maxTemperatureDay, minTemperatureNight)
+        addSubviews(dayLabel, weatherPicture, maxTemperature, minTemperature)
         setAllConstraints()
     }
     
@@ -46,24 +48,48 @@ class DayTemperatureTableViewCell: UITableViewCell {
         fatalError("init(coder: \(coder) has not been implemented")
     }
     
-    func configure() {
+    func configure(forecast: Daily) {
         self.layer.borderWidth = 0
         
-        dayLabel.text = "Sunday"
-        weatherPicture.image = UIImage(systemName: "cloud")
-        maxTemperatureDay.text = "10"
-        minTemperatureNight.text = "-5"
+        dayLabel.text = getFormat(dayTemperature: forecast.dt ?? 0)
+        
+        if let maxTemp = forecast.temp?.max, let minTemp = forecast.temp?.min {
+            maxTemperature.text = "\(maxTemp.getRound)"
+            minTemperature.text = "\(minTemp.getRound)"
+            
+        }
+        
+        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
+            if let imageData = imageData {
+                self.weatherPicture.image = UIImage(data: imageData)
+            }
+        }
     }
     
     private func addSubviews(_ views: UIView...) {
         views.forEach { addSubview($0) }
     }
     
+    private func getFormat(dayTemperature: Int) -> String {
+        
+        let temperature = Double(dayTemperature)
+        let date = "\(Date(timeIntervalSince1970: temperature))"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
+        guard let theDate = dateFormatter.date(from: date) else { return "" }
+
+        let newDateFormatter = DateFormatter()
+        newDateFormatter.dateFormat = "EEEE"
+        
+        return newDateFormatter.string(from: theDate)
+    }
+    
     private func setAllConstraints() {
         setConstraintsForDayLabel()
         setConstraintsForWeatherPicture()
-        setConstraintsForMaxTemperatureDay()
-        setConstraintsForMinTemperatureNight()
+        setConstraintsForMaxTemperature()
+        setConstraintsForMinTemperature()
     }
 
     private func setConstraintsForDayLabel() {
@@ -84,19 +110,21 @@ class DayTemperatureTableViewCell: UITableViewCell {
         ])
     }
     
-    private func setConstraintsForMaxTemperatureDay() {
-        maxTemperatureDay.translatesAutoresizingMaskIntoConstraints = false
+    private func setConstraintsForMaxTemperature() {
+        maxTemperature.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            maxTemperatureDay.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            maxTemperatureDay.rightAnchor.constraint(equalTo: minTemperatureNight.leftAnchor, constant: -24)
+            maxTemperature.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            maxTemperature.widthAnchor.constraint(equalToConstant: 30),
+            maxTemperature.rightAnchor.constraint(equalTo: minTemperature.leftAnchor, constant: -24)
         ])
     }
     
-    private func setConstraintsForMinTemperatureNight() {
-        minTemperatureNight.translatesAutoresizingMaskIntoConstraints = false
+    private func setConstraintsForMinTemperature() {
+        minTemperature.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            minTemperatureNight.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            minTemperatureNight.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16)
+            minTemperature.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            minTemperature.widthAnchor.constraint(equalToConstant: 30),
+            minTemperature.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16)
         ])
     }
 }

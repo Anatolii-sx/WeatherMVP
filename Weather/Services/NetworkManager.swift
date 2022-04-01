@@ -20,13 +20,20 @@ class NetworkManager {
     private let latitude = "33.44"
     private let longitude = "-94.04"
     
+    private let metric = "metric"
+    private var icon = ""
+    
     var url: String {
-        "https://api.openweathermap.org/data/2.5/onecall?lat=\(latitude)&lon=\(longitude)&appid=\(key)"
+        "https://api.openweathermap.org/data/2.5/onecall?lat=\(latitude)&lon=\(longitude)&appid=\(key)&units=\(metric)"
+    }
+    
+    var imageURL: String {
+        "https://openweathermap.org/img/wn/\(icon)@2x.png"
     }
     
     private init() {}
     
-    func fetchWeather(url: String, completion: @escaping(Result<WeatherForecast, NetworkError>) -> Void) {
+    func fetchWeatherForecast(url: String, completion: @escaping(Result<WeatherForecast, NetworkError>) -> Void) {
         guard let url = URL(string: url) else {
             completion(.failure(.invalidURL))
             return
@@ -47,6 +54,19 @@ class NetworkManager {
                 }
             } catch {
                 completion(.failure(.decodingError))
+            }
+        }.resume()
+    }
+    
+    func fetchWeatherImage(icon: String, completion: @escaping(Data?) -> Void) {
+        self.icon = icon
+        
+        guard let url = URL(string: imageURL) else { return }
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data else { return }
+
+            DispatchQueue.main.async {
+                completion(data)
             }
         }.resume()
     }

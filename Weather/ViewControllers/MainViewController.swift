@@ -9,6 +9,37 @@ import UIKit
 
 class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate {
     
+    private var weatherForecast: WeatherForecast?
+    
+    private var weatherDescriptions: [[String: Any]] {
+        [
+            ["sunrise": getFormat(seconds: weatherForecast?.current?.sunrise ?? 0)],
+            ["sunset": getFormat(seconds: weatherForecast?.current?.sunset ?? 0)],
+            ["humidity": "\(weatherForecast?.current?.humidity ?? 0) %"],
+            ["wind": "\(weatherForecast?.current?.windSpeed?.getRound ?? 0) m/s"],
+            ["feels like": "\(weatherForecast?.current?.feelsLike?.getRound ?? 0)º"],
+            ["pressure": "\(Double(weatherForecast?.current?.pressure ?? 0) * 0.75) mm Hg"],
+            ["visibility": "\(Double(weatherForecast?.current?.visibility ?? 0)/1000) km"],
+            ["uv index": weatherForecast?.current?.uvi?.getRound ?? 0],
+        ]
+    }
+    
+    // НУЖНО СДЕЛАТЬ ОДНУ УНИВЕРСАЛЬНУЮ ФУНКЦИЮ format для всех. Два параметра, дженерик тип и enum (кейсы - выдаваемый формат HH, HH:mm, ...)
+    private func getFormat(seconds: Int) -> String {
+        
+        let time = Double(seconds)
+        let date = "\(Date(timeIntervalSince1970: time))"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
+        guard let theDate = dateFormatter.date(from: date) else { return "" }
+
+        let newDateFormatter = DateFormatter()
+        newDateFormatter.dateFormat = "HH:mm"
+        
+        return newDateFormatter.string(from: theDate)
+    }
+    
     private lazy var mainScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -16,20 +47,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         return scrollView
     }()
     
-    private lazy var mainStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-                headerStackView,
-                timeTemperatureCollectionView,
-                daysTemperatureTableView,
-                moreDescriptionTableView
-            ])
-        stackView.axis = .vertical
-//        stackView.distribution = .equalSpacing
-        stackView.backgroundColor = .blue
-        return stackView
-    }()
-    
-    // MARK: - Header
+    // MARK: - Header Views
     private lazy var headerStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [
             cityLabel,
@@ -45,7 +63,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     private lazy var cityLabel: UILabel = {
         let cityLabel = UILabel()
-        cityLabel.text = "Moscow"
         cityLabel.textAlignment = .center
         cityLabel.font = .systemFont(ofSize: 32, weight: .medium)
         cityLabel.textColor = .white
@@ -54,7 +71,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     private lazy var weatherStatusLabel: UILabel = {
         let weatherStatusLabel = UILabel()
-        weatherStatusLabel.text = "Rain"
         weatherStatusLabel.textAlignment = .center
         weatherStatusLabel.font = .systemFont(ofSize: 24, weight: .medium)
         weatherStatusLabel.textColor = .white
@@ -63,14 +79,14 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     
     private lazy var temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
-        temperatureLabel.text = "5º"
+      
         temperatureLabel.textAlignment = .center
         temperatureLabel.font = .systemFont(ofSize: 40, weight: .medium)
         temperatureLabel.textColor = .white
         return temperatureLabel
     }()
     
-    // MARK: - Main
+    // MARK: - Main Views
     private lazy var timeTemperatureCollectionViewFlowLayout: UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -113,7 +129,13 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
        
         view.backgroundColor = .purple
         view.addSubview(mainScrollView)
-        mainScrollView.addSubview(mainStackView)
+        addSubviewsIntoMainScrollView(
+            headerStackView,
+            timeTemperatureCollectionView,
+            daysTemperatureTableView,
+            moreDescriptionTableView
+        )
+        
         setAllConstraints()
         
         timeTemperatureCollectionView.delegate = self
@@ -126,13 +148,19 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         moreDescriptionTableView.dataSource = self
     }
     
+    private func addSubviewsIntoMainScrollView(_ views: UIView...) {
+        views.forEach { mainScrollView.addSubview($0) }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        20
+        weatherForecast?.hourly?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TimeTemperatureCollectionViewCell.cellID, for: indexPath) as? TimeTemperatureCollectionViewCell else { return UICollectionViewCell() }
-        cell.configure()
+        if let hourlyForecasts = weatherForecast?.hourly {
+            cell.configure(forecast: hourlyForecasts[indexPath.row])
+        }
         cell.backgroundColor = .gray
         return cell
     }
@@ -141,9 +169,9 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         var count = 0
         
         if tableView == daysTemperatureTableView {
-            count = 7
+           count = weatherForecast?.daily?.count ?? 0
         } else if tableView == moreDescriptionTableView {
-            count = 10
+            count = weatherDescriptions.count
         }
         
         return count
@@ -154,11 +182,14 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         
         if tableView == daysTemperatureTableView {
             guard let dayTemperatureCell = daysTemperatureTableView.dequeueReusableCell(withIdentifier: DayTemperatureTableViewCell.cellID) as? DayTemperatureTableViewCell else { return UITableViewCell() }
-            dayTemperatureCell.configure()
+            if let dailyForecasts = weatherForecast?.daily {
+                dayTemperatureCell.configure(forecast: dailyForecasts[indexPath.row])
+            }
             cell = dayTemperatureCell
         } else if tableView == moreDescriptionTableView {
             guard let moreDescriptionCell = moreDescriptionTableView.dequeueReusableCell(withIdentifier: MoreDescriptionTableViewCell.cellID) as? MoreDescriptionTableViewCell else { return UITableViewCell() }
-            moreDescriptionCell.configure()
+            let description = weatherDescriptions[indexPath.row]
+            moreDescriptionCell.configure(description: description)
             cell = moreDescriptionCell
         }
         
@@ -169,15 +200,26 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    private func setAllConstraints() {
-        setConstraintsForScrollView()
-        setConstraintsForMainStackView()
-        setHeightConstraintForTimeTemperatureCollectionView()
-        setHeightConstraintForDaysTemperatureTableView()
-        setHeightConstraintForMoreDescriptionTableView()
+   
+    
+    private func updateHeaderLabels() {
+        cityLabel.text = weatherForecast?.timezone ?? ""
+        weatherStatusLabel.text = weatherForecast?.current?.weather?.first?.main ?? ""
+
+        if let temperature = weatherForecast?.current?.temp {
+            temperatureLabel.text = "\(temperature.getRound)ºC"
+        }
     }
     
-    private func setConstraintsForScrollView() {
+    private func setAllConstraints() {
+        setConstraintsScrollView()
+        setConstraintsHeaderStackView()
+        setConstraintsTimeTemperatureCollectionView()
+        setConstraintsDaysTemperatureTableView()
+        setConstraintsMoreDescriptionTableView()
+    }
+    
+    private func setConstraintsScrollView() {
         mainScrollView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             mainScrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
@@ -187,50 +229,73 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         ])
     }
     
-    private func setConstraintsForMainStackView() {
-        mainStackView.translatesAutoresizingMaskIntoConstraints = false
+    private func setConstraintsHeaderStackView() {
+        headerStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: mainScrollView.topAnchor, constant: 0),
-            mainStackView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
-            mainStackView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
-            mainStackView.bottomAnchor.constraint(equalTo: mainScrollView.bottomAnchor, constant: 0),
-            mainStackView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
+            headerStackView.heightAnchor.constraint(equalToConstant: 150),
+            headerStackView.topAnchor.constraint(equalTo: mainScrollView.topAnchor, constant: 0),
+            headerStackView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
+            headerStackView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
+            headerStackView.bottomAnchor.constraint(equalTo: timeTemperatureCollectionView.topAnchor, constant: -16),
+            headerStackView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
     
-    private func setHeightConstraintForTimeTemperatureCollectionView() {
+    private func setConstraintsTimeTemperatureCollectionView() {
         timeTemperatureCollectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            timeTemperatureCollectionView.heightAnchor.constraint(equalToConstant: 150)
+            timeTemperatureCollectionView.heightAnchor.constraint(equalToConstant: 150),
+            timeTemperatureCollectionView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
+            timeTemperatureCollectionView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
+            timeTemperatureCollectionView.bottomAnchor.constraint(equalTo: daysTemperatureTableView.topAnchor, constant: -16),
+            timeTemperatureCollectionView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
     
-    private func setHeightConstraintForDaysTemperatureTableView() {
+    private func setConstraintsDaysTemperatureTableView() {
         daysTemperatureTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            daysTemperatureTableView.heightAnchor.constraint(equalToConstant: 7 * 45)
+            daysTemperatureTableView.heightAnchor.constraint(equalToConstant: 7 * 45),
+            daysTemperatureTableView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
+            daysTemperatureTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
+            daysTemperatureTableView.bottomAnchor.constraint(equalTo: moreDescriptionTableView.topAnchor, constant: -16),
+            daysTemperatureTableView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
     
-    private func setHeightConstraintForMoreDescriptionTableView() {
+    private func setConstraintsMoreDescriptionTableView() {
         moreDescriptionTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            moreDescriptionTableView.heightAnchor.constraint(equalToConstant: 10 * 65),
-            moreDescriptionTableView.rightAnchor.constraint(equalTo: mainStackView.rightAnchor, constant: -16)
+            moreDescriptionTableView.heightAnchor.constraint(equalToConstant: 8 * 65),
+            moreDescriptionTableView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
+            moreDescriptionTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
+            moreDescriptionTableView.bottomAnchor.constraint(equalTo: mainScrollView.bottomAnchor, constant: 0),
+            moreDescriptionTableView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
 }
 
 extension MainViewController {
     private func getWeatherForecast() {
-        NetworkManager.shared.fetchWeather(url: NetworkManager.shared.url) { result in
+        NetworkManager.shared.fetchWeatherForecast(url: NetworkManager.shared.url) { result in
             switch result {
             case .success(let weatherForecast):
+                self.weatherForecast = weatherForecast
+                self.updateHeaderLabels()
+                self.timeTemperatureCollectionView.reloadData()
+                self.daysTemperatureTableView.reloadData()
+                self.moreDescriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
                 print(weatherForecast)
             case .failure(let error):
                 print(error)
             }
         }
+    }
+}
+
+extension Double {
+    var getRound: Int {
+        Int(self.rounded(.up))
     }
 }
 

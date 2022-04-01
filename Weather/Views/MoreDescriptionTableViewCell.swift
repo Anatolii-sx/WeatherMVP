@@ -11,7 +11,6 @@ class MoreDescriptionTableViewCell: UITableViewCell {
     
     static let cellID = "MoreDescriptionID"
     
-    
     private lazy var descriptionStackView: UIStackView = {
         let descriptionStackView = UIStackView(arrangedSubviews: [
             titleLabel,
@@ -20,7 +19,6 @@ class MoreDescriptionTableViewCell: UITableViewCell {
         descriptionStackView.axis = .vertical
         descriptionStackView.distribution = .equalSpacing
         descriptionStackView.spacing = 5
-        descriptionStackView.backgroundColor = .red
         return descriptionStackView
     }()
 
@@ -50,9 +48,11 @@ class MoreDescriptionTableViewCell: UITableViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure() {
-        titleLabel.text = "Sunrise"
-        descriptionLabel.text = "06:12"
+    func configure(description: [String: Any]) {
+        for (title, text) in description {
+            titleLabel.text = title.uppercased()
+            descriptionLabel.text = "\(text)"
+        }
     }
     
     private func setConstraintsForDescriptionStackView() {

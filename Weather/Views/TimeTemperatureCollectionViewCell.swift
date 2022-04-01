@@ -45,14 +45,37 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
     
     
     // MARK: - Configure Cell
-    func configure() {
-        timeLabel.text = "15"
-        weatherPicture.image = UIImage(systemName: "cloud")
-        temperatureLabel.text = "-5"
+    func configure(forecast: Hourly) {
+        timeLabel.text = getFormat(dayTime: forecast.dt ?? 0)
+        
+        if let temperature = forecast.temp {
+            temperatureLabel.text = "\(temperature.getRound)º"
+        }
+        
+        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
+            if let imageData = imageData {
+                self.weatherPicture.image = UIImage(data: imageData)
+            }
+        }
     }
     
     private func addSubviews(_ views: UIView...) {
         views.forEach { addSubview($0) }
+    }
+    
+    private func getFormat(dayTime: Int) -> String {
+        
+        let time = Double(dayTime)
+        let date = "\(Date(timeIntervalSince1970: time))"
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
+        guard let theDate = dateFormatter.date(from: date) else { return "" }
+
+        let newDateFormatter = DateFormatter()
+        newDateFormatter.dateFormat = "HH"
+        
+        return newDateFormatter.string(from: theDate)
     }
     
     private func setAllConstraints() {

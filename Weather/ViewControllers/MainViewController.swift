@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import CoreLocation
 
-class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate {
+class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
+    
+    private var locationManager = CLLocationManager()
     
     private var weatherForecast: WeatherForecast?
     
@@ -71,7 +74,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     @objc private func locationButtonTapped() {
-        print(2)
+        locationManager.startUpdatingLocation()
     }
     
     private lazy var mainScrollView: UIScrollView = {
@@ -159,6 +162,9 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setLocationManager()
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        
         setToolbar()
         getWeatherForecast()
        
@@ -181,6 +187,21 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         
         moreDescriptionTableView.delegate = self
         moreDescriptionTableView.dataSource = self
+    }
+    
+    private func setLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let first = locations.first else { return }
+        NetworkManager.shared.latitude =  String(format: "%.4f", first.coordinate.latitude)
+        NetworkManager.shared.longitude = String(format: "%.4f", first.coordinate.longitude)
+        getWeatherForecast()
+        locationManager.stopUpdatingLocation()
     }
     
     private func addSubviewsIntoMainScrollView(_ views: UIView...) {
@@ -235,12 +256,10 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-   
-    
     private func updateHeaderLabels() {
         cityLabel.text = weatherForecast?.timezone ?? ""
         weatherStatusLabel.text = weatherForecast?.current?.weather?.first?.main ?? ""
-
+        
         if let temperature = weatherForecast?.current?.temp {
             temperatureLabel.text = "\(temperature.getRound)ºC"
         }

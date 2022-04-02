@@ -16,10 +16,10 @@ enum NetworkError: Error {
 class NetworkManager {
     static let shared = NetworkManager()
     
-    private let key = "01ada1995824bb19b1fc62b722cc7231"
-    private let latitude = "33.44"
-    private let longitude = "-94.04"
+    var latitude = "33.44"
+    var longitude = "-94.04"
     
+    private let key = "01ada1995824bb19b1fc62b722cc7231"
     private let metric = "metric"
     private var icon = ""
     

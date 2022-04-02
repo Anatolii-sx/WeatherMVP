@@ -20,7 +20,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
             ["feels like": "\(weatherForecast?.current?.feelsLike?.getRound ?? 0)º"],
             ["pressure": "\(Double(weatherForecast?.current?.pressure ?? 0) * 0.75) mm Hg"],
             ["visibility": "\(Double(weatherForecast?.current?.visibility ?? 0)/1000) km"],
-            ["uv index": weatherForecast?.current?.uvi?.getRound ?? 0],
+            ["uv index": weatherForecast?.current?.uvi?.getRound ?? 0]
         ]
     }
     
@@ -38,6 +38,40 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         newDateFormatter.dateFormat = "HH:mm"
         
         return newDateFormatter.string(from: theDate)
+    }
+    
+    private func setToolbar() {
+        navigationController?.isToolbarHidden = false
+        
+        let locationButton = UIBarButtonItem(
+            image: UIImage(systemName: "location"),
+            style: .done,
+            target: self,
+            action: #selector(locationButtonTapped)
+        )
+        
+        let flexibleSpace = UIBarButtonItem(
+            barButtonSystemItem: .flexibleSpace,
+            target: self,
+            action: .none
+        )
+        
+        let listButton = UIBarButtonItem(
+            image: UIImage(systemName: "list.bullet"),
+            style: .done,
+            target: self,
+            action: #selector(listButtonTapped)
+        )
+        
+        toolbarItems = [locationButton, flexibleSpace, listButton]
+    }
+    
+    @objc private func listButtonTapped() {
+        print(1)
+    }
+    
+    @objc private func locationButtonTapped() {
+        print(2)
     }
     
     private lazy var mainScrollView: UIScrollView = {
@@ -125,6 +159,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setToolbar()
         getWeatherForecast()
        
         view.backgroundColor = .purple
@@ -285,7 +320,6 @@ extension MainViewController {
                 self.timeTemperatureCollectionView.reloadData()
                 self.daysTemperatureTableView.reloadData()
                 self.moreDescriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
-                print(weatherForecast)
             case .failure(let error):
                 print(error)
             }

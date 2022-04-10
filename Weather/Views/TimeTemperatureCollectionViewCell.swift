@@ -45,8 +45,8 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
     
     
     // MARK: - Configure Cell
-    func configure(forecast: Hourly) {
-        timeLabel.text = getFormat(dayTime: forecast.dt ?? 0)
+    func configure(forecast: Hourly, timezone: String) {
+        timeLabel.text = getFormat(dayTime: forecast.dt ?? 0, timezone: timezone)
         
         if let temperature = forecast.temp {
             temperatureLabel.text = "\(temperature.getRound)º"
@@ -63,16 +63,18 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
         views.forEach { addSubview($0) }
     }
     
-    private func getFormat(dayTime: Int) -> String {
+    private func getFormat(dayTime: Int, timezone: String) -> String {
         
         let time = Double(dayTime)
         let date = "\(Date(timeIntervalSince1970: time))"
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
+        
         guard let theDate = dateFormatter.date(from: date) else { return "" }
 
         let newDateFormatter = DateFormatter()
+        newDateFormatter.timeZone = TimeZone(identifier: timezone)
         newDateFormatter.dateFormat = "HH"
         
         return newDateFormatter.string(from: theDate)

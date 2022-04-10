@@ -8,6 +8,10 @@
 import UIKit
 import CoreLocation
 
+protocol CityListTableViewControllerDelegate {
+    func setWeatherForecast(_ forecast: WeatherForecast)
+}
+
 class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
     
     private var locationManager = CLLocationManager()
@@ -38,6 +42,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         guard let theDate = dateFormatter.date(from: date) else { return "" }
 
         let newDateFormatter = DateFormatter()
+        newDateFormatter.timeZone = TimeZone(identifier: weatherForecast?.timezone ?? "")
         newDateFormatter.dateFormat = "HH:mm"
         
         return newDateFormatter.string(from: theDate)
@@ -70,11 +75,17 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     @objc private func listButtonTapped() {
-        print(1)
+        let cityListVC = CityListTableViewController()
+        cityListVC.delegate = self
+        let navController = UINavigationController(rootViewController: cityListVC)
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
+        toolbarItems?.first?.image = UIImage(systemName: "location")
     }
     
     @objc private func locationButtonTapped() {
         locationManager.startUpdatingLocation()
+        toolbarItems?.first?.image = UIImage(systemName: "location.fill")
     }
     
     private lazy var mainScrollView: UIScrollView = {
@@ -201,6 +212,17 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         NetworkManager.shared.latitude =  String(format: "%.4f", first.coordinate.latitude)
         NetworkManager.shared.longitude = String(format: "%.4f", first.coordinate.longitude)
         getWeatherForecast()
+        
+        let geoCoder = CLGeocoder()
+        let location = CLLocation(latitude: first.coordinate.latitude, longitude: first.coordinate.longitude)
+
+        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, _) -> Void in
+            placemarks?.forEach { (placemark) in
+                if let city = placemark.locality {
+                    self.cityLabel.text = city
+                }
+            }
+        })
         locationManager.stopUpdatingLocation()
     }
     
@@ -215,7 +237,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TimeTemperatureCollectionViewCell.cellID, for: indexPath) as? TimeTemperatureCollectionViewCell else { return UICollectionViewCell() }
         if let hourlyForecasts = weatherForecast?.hourly {
-            cell.configure(forecast: hourlyForecasts[indexPath.row])
+            cell.configure(forecast: hourlyForecasts[indexPath.row], timezone: weatherForecast?.timezone ?? "")
         }
         cell.backgroundColor = .gray
         return cell
@@ -239,7 +261,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         if tableView == daysTemperatureTableView {
             guard let dayTemperatureCell = daysTemperatureTableView.dequeueReusableCell(withIdentifier: DayTemperatureTableViewCell.cellID) as? DayTemperatureTableViewCell else { return UITableViewCell() }
             if let dailyForecasts = weatherForecast?.daily {
-                dayTemperatureCell.configure(forecast: dailyForecasts[indexPath.row])
+                dayTemperatureCell.configure(forecast: dailyForecasts[indexPath.row], timezone: weatherForecast?.timezone ?? "")
             }
             cell = dayTemperatureCell
         } else if tableView == moreDescriptionTableView {
@@ -257,7 +279,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     private func updateHeaderLabels() {
-        cityLabel.text = weatherForecast?.timezone ?? ""
         weatherStatusLabel.text = weatherForecast?.current?.weather?.first?.main ?? ""
         
         if let temperature = weatherForecast?.current?.temp {
@@ -331,7 +352,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
 
 extension MainViewController {
     private func getWeatherForecast() {
-        NetworkManager.shared.fetchWeatherForecast(url: NetworkManager.shared.url) { result in
+        NetworkManager.shared.fetchWeatherForecastByLocation(url: NetworkManager.shared.locationUrl) { result in
             switch result {
             case .success(let weatherForecast):
                 self.weatherForecast = weatherForecast
@@ -349,6 +370,28 @@ extension MainViewController {
 extension Double {
     var getRound: Int {
         Int(self.rounded(.up))
+    }
+}
+
+extension MainViewController: CityListTableViewControllerDelegate {
+    func setWeatherForecast(_ forecast: WeatherForecast) {
+        weatherForecast = forecast
+        
+        let geoCoder = CLGeocoder()
+        let location = CLLocation(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0)
+
+        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, _) -> Void in
+            placemarks?.forEach { (placemark) in
+                if let city = placemark.locality {
+                    self.cityLabel.text = city
+                }
+            }
+        })
+        
+        updateHeaderLabels()
+        timeTemperatureCollectionView.reloadData()
+        daysTemperatureTableView.reloadData()
+        moreDescriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
     }
 }
 

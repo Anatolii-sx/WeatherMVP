@@ -48,10 +48,10 @@ class DayTemperatureTableViewCell: UITableViewCell {
         fatalError("init(coder: \(coder) has not been implemented")
     }
     
-    func configure(forecast: Daily) {
+    func configure(forecast: Daily, timezone: String) {
         self.layer.borderWidth = 0
         
-        dayLabel.text = getFormat(dayTemperature: forecast.dt ?? 0)
+        dayLabel.text = getFormat(dayTemperature: forecast.dt ?? 0, timezone: timezone)
         
         if let maxTemp = forecast.temp?.max, let minTemp = forecast.temp?.min {
             maxTemperature.text = "\(maxTemp.getRound)"
@@ -70,7 +70,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
         views.forEach { addSubview($0) }
     }
     
-    private func getFormat(dayTemperature: Int) -> String {
+    private func getFormat(dayTemperature: Int, timezone: String) -> String {
         
         let temperature = Double(dayTemperature)
         let date = "\(Date(timeIntervalSince1970: temperature))"
@@ -80,6 +80,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
         guard let theDate = dateFormatter.date(from: date) else { return "" }
 
         let newDateFormatter = DateFormatter()
+        newDateFormatter.timeZone = TimeZone(identifier: timezone)
         newDateFormatter.dateFormat = "EEEE"
         
         return newDateFormatter.string(from: theDate)

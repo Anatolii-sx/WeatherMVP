@@ -12,8 +12,8 @@ class DayTemperatureTableViewCell: UITableViewCell {
     
     private lazy var dayLabel: UILabel =  {
         let dayLabel = UILabel()
-        dayLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        dayLabel.textColor = .black
+        dayLabel.font = .systemFont(ofSize: 20, weight: .medium)
+        dayLabel.textColor = .white
         return dayLabel
     }()
     
@@ -24,16 +24,16 @@ class DayTemperatureTableViewCell: UITableViewCell {
     
     private lazy var maxTemperature: UILabel =  {
         let maxTemperature = UILabel()
-        maxTemperature.font = .systemFont(ofSize: 18, weight: .medium)
-        maxTemperature.textColor = .black
+        maxTemperature.font = .systemFont(ofSize: 20, weight: .medium)
+        maxTemperature.textColor = .white
         maxTemperature.textAlignment = .right
         return maxTemperature
     }()
     
     private lazy var minTemperature: UILabel =  {
         let minTemperature = UILabel()
-        minTemperature.font = .systemFont(ofSize: 18, weight: .medium)
-        minTemperature.textColor = .black
+        minTemperature.font = .systemFont(ofSize: 20, weight: .medium)
+        minTemperature.textColor = .white
         minTemperature.textAlignment = .right
         return minTemperature
     }()
@@ -50,13 +50,14 @@ class DayTemperatureTableViewCell: UITableViewCell {
     
     func configure(forecast: Daily, timezone: String) {
         self.layer.borderWidth = 0
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
         
         dayLabel.text = getFormat(dayTemperature: forecast.dt ?? 0, timezone: timezone)
         
         if let maxTemp = forecast.temp?.max, let minTemp = forecast.temp?.min {
             maxTemperature.text = "\(maxTemp.getRound)"
             minTemperature.text = "\(minTemp.getRound)"
-            
         }
         
         NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
@@ -106,8 +107,8 @@ class DayTemperatureTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             weatherPicture.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             weatherPicture.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            weatherPicture.widthAnchor.constraint(equalToConstant: 32),
-            weatherPicture.heightAnchor.constraint(equalToConstant: 32)
+            weatherPicture.widthAnchor.constraint(equalToConstant: 40),
+            weatherPicture.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     
@@ -125,7 +126,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             minTemperature.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             minTemperature.widthAnchor.constraint(equalToConstant: 30),
-            minTemperature.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16)
+            minTemperature.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8)
         ])
     }
 }

@@ -14,10 +14,22 @@ protocol CityListTableViewControllerDelegate {
 
 class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
     
+    private let primaryColor = UIColor(
+        red: 1/255,
+        green: 255/255,
+        blue: 255/255,
+        alpha: 0.4
+    )
+    
+    private let secondaryColor = UIColor(
+        red: 25/255,
+        green: 33/255,
+        blue: 78/255,
+        alpha: 0.4
+    )
+    
     private var locationManager = CLLocationManager()
-    
     private var weatherForecast: WeatherForecast?
-    
     private var weatherDescriptions: [[String: Any]] {
         [
             ["sunrise": getFormat(seconds: weatherForecast?.current?.sunrise ?? 0)],
@@ -71,6 +83,12 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
             action: #selector(listButtonTapped)
         )
         
+        locationButton.tintColor = .white
+        listButton.tintColor = .white
+        
+        navigationController?.toolbar.barTintColor = .black
+        navigationController?.toolbar.addVerticalGradientLayer(topColor: primaryColor, bottomColor: secondaryColor)
+        
         toolbarItems = [locationButton, flexibleSpace, listButton]
     }
     
@@ -91,7 +109,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     private lazy var mainScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
-        scrollView.backgroundColor = .yellow
         return scrollView
     }()
     
@@ -105,7 +122,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
         stackView.spacing = 5
-        stackView.backgroundColor = .red
         return stackView
     }()
     
@@ -120,14 +136,13 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     private lazy var weatherStatusLabel: UILabel = {
         let weatherStatusLabel = UILabel()
         weatherStatusLabel.textAlignment = .center
-        weatherStatusLabel.font = .systemFont(ofSize: 24, weight: .medium)
+        weatherStatusLabel.font = .systemFont(ofSize: 18, weight: .regular)
         weatherStatusLabel.textColor = .white
         return weatherStatusLabel
     }()
     
     private lazy var temperatureLabel: UILabel = {
         let temperatureLabel = UILabel()
-      
         temperatureLabel.textAlignment = .center
         temperatureLabel.font = .systemFont(ofSize: 40, weight: .medium)
         temperatureLabel.textColor = .white
@@ -139,7 +154,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 3
-        layout.itemSize = CGSize(width: 70, height: 150)
+        layout.itemSize = CGSize(width: 55, height: 150)
         return layout
     }()
     
@@ -147,7 +162,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: timeTemperatureCollectionViewFlowLayout)
         collectionView.register(TimeTemperatureCollectionViewCell.self, forCellWithReuseIdentifier: TimeTemperatureCollectionViewCell.cellID)
         collectionView.showsHorizontalScrollIndicator = false
-        collectionView.backgroundColor = .brown
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
 
@@ -173,13 +188,20 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        daysTemperatureTableView.backgroundColor = .clear
+        moreDescriptionTableView.backgroundColor = .clear
+        
+        
+        moreDescriptionTableView.separatorColor = .white
+        
+        
         setLocationManager()
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         setToolbar()
         getWeatherForecast()
-       
-        view.backgroundColor = .purple
+        view.addVerticalGradientLayer(topColor: primaryColor, bottomColor: secondaryColor)
+        
         view.addSubview(mainScrollView)
         addSubviewsIntoMainScrollView(
             headerStackView,
@@ -239,7 +261,6 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         if let hourlyForecasts = weatherForecast?.hourly {
             cell.configure(forecast: hourlyForecasts[indexPath.row], timezone: weatherForecast?.timezone ?? "")
         }
-        cell.backgroundColor = .gray
         return cell
     }
     
@@ -307,11 +328,11 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     private func setConstraintsHeaderStackView() {
         headerStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            headerStackView.heightAnchor.constraint(equalToConstant: 150),
+            headerStackView.heightAnchor.constraint(equalToConstant: 125),
             headerStackView.topAnchor.constraint(equalTo: mainScrollView.topAnchor, constant: 0),
             headerStackView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
             headerStackView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
-            headerStackView.bottomAnchor.constraint(equalTo: timeTemperatureCollectionView.topAnchor, constant: -16),
+            headerStackView.bottomAnchor.constraint(equalTo: timeTemperatureCollectionView.topAnchor, constant: -10),
             headerStackView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
@@ -322,7 +343,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
             timeTemperatureCollectionView.heightAnchor.constraint(equalToConstant: 150),
             timeTemperatureCollectionView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
             timeTemperatureCollectionView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
-            timeTemperatureCollectionView.bottomAnchor.constraint(equalTo: daysTemperatureTableView.topAnchor, constant: -16),
+            timeTemperatureCollectionView.bottomAnchor.constraint(equalTo: daysTemperatureTableView.topAnchor, constant: -1),
             timeTemperatureCollectionView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
         ])
     }
@@ -332,9 +353,8 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         NSLayoutConstraint.activate([
             daysTemperatureTableView.heightAnchor.constraint(equalToConstant: 7 * 45),
             daysTemperatureTableView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
-            daysTemperatureTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
-            daysTemperatureTableView.bottomAnchor.constraint(equalTo: moreDescriptionTableView.topAnchor, constant: -16),
-            daysTemperatureTableView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
+            daysTemperatureTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: -16),
+            daysTemperatureTableView.bottomAnchor.constraint(equalTo: moreDescriptionTableView.topAnchor, constant: -1)
         ])
     }
     
@@ -343,10 +363,26 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
         NSLayoutConstraint.activate([
             moreDescriptionTableView.heightAnchor.constraint(equalToConstant: 8 * 65),
             moreDescriptionTableView.leftAnchor.constraint(equalTo: mainScrollView.leftAnchor, constant: 0),
-            moreDescriptionTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: 0),
-            moreDescriptionTableView.bottomAnchor.constraint(equalTo: mainScrollView.bottomAnchor, constant: 0),
-            moreDescriptionTableView.widthAnchor.constraint(equalTo: mainScrollView.widthAnchor)
+            moreDescriptionTableView.rightAnchor.constraint(equalTo: mainScrollView.rightAnchor, constant: -16),
+            moreDescriptionTableView.bottomAnchor.constraint(equalTo: mainScrollView.bottomAnchor, constant: 0)
         ])
+    }
+    
+    private func showAlert() {
+        let alert = UIAlertController(
+            title: "Oooops",
+            message: "Check your internet connection",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(
+            UIAlertAction(
+                title: "OK",
+                style: .default
+            )
+        )
+        
+        present(alert, animated: true)
     }
 }
 
@@ -362,6 +398,9 @@ extension MainViewController {
                 self.moreDescriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
             case .failure(let error):
                 print(error)
+                DispatchQueue.main.async {
+                    self.showAlert()
+                }
             }
         }
     }
@@ -384,6 +423,8 @@ extension MainViewController: CityListTableViewControllerDelegate {
             placemarks?.forEach { (placemark) in
                 if let city = placemark.locality {
                     self.cityLabel.text = city
+                } else {
+                    self.cityLabel.text = "Near search place"
                 }
             }
         })
@@ -395,3 +436,14 @@ extension MainViewController: CityListTableViewControllerDelegate {
     }
 }
 
+extension UIView {
+    func addVerticalGradientLayer(topColor: UIColor, bottomColor: UIColor) {
+        let gradient = CAGradientLayer()
+        gradient.frame = bounds
+        gradient.colors = [topColor.cgColor, bottomColor.cgColor]
+        gradient.locations = [0.0, 1.0]
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint = CGPoint(x: 0, y: 1)
+        layer.insertSublayer(gradient, at: 0)
+    }
+}

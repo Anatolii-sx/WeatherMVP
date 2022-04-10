@@ -24,15 +24,15 @@ class MoreDescriptionTableViewCell: UITableViewCell {
 
     private lazy var titleLabel: UILabel =  {
         let titleLabel = UILabel()
-        titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        titleLabel.textColor = .black
+        titleLabel.font = .systemFont(ofSize: 12, weight: .regular)
+        titleLabel.textColor = .white
         return titleLabel
     }()
     
     private lazy var descriptionLabel: UILabel =  {
         let descriptionLabel = UILabel()
-        descriptionLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        descriptionLabel.textColor = .black
+        descriptionLabel.font = .systemFont(ofSize: 24, weight: .medium)
+        descriptionLabel.textColor = .white
         return descriptionLabel
     }()
     
@@ -49,6 +49,9 @@ class MoreDescriptionTableViewCell: UITableViewCell {
     
     // MARK: - Configure Cell
     func configure(description: [String: Any]) {
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
+        
         for (title, text) in description {
             titleLabel.text = title.uppercased()
             descriptionLabel.text = "\(text)"

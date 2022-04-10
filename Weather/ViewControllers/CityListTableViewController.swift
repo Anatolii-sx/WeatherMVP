@@ -10,6 +10,8 @@ import CoreLocation
 
 class CityListTableViewController: UITableViewController, UISearchBarDelegate, CLLocationManagerDelegate {
     
+    
+    
     private var locationManager = CLLocationManager()
     
     private func setLocationManager() {
@@ -31,12 +33,38 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
     var weatherForecasts: [WeatherForecast] = []
     var weatherForecastCurrentDestination: WeatherForecast?
     var delegate: CityListTableViewControllerDelegate!
-
+    
+    private let primaryColor = UIColor(
+        red: 1/255,
+        green: 255/255,
+        blue: 255/255,
+        alpha: 0.4
+    )
+    
+    private let secondaryColor = UIColor(
+        red: 25/255,
+        green: 33/255,
+        blue: 78/255,
+        alpha: 0.4
+    )
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let backgroundView = UIView(frame: tableView.bounds)
+        backgroundView.addVerticalGradientLayer(topColor: primaryColor, bottomColor: secondaryColor)
+        tableView.backgroundColor = .black
+        tableView.backgroundView = backgroundView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setLocationManager()
         createSearchBar()
         tableView.register(CityTableViewCell.self, forCellReuseIdentifier: CityTableViewCell.cellID)
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        70
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -45,8 +73,6 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
             getWeatherForecast()
         }
     }
-    
-    
     
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -131,6 +157,17 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
         navigationItem.searchController = searchVC
         searchVC.searchBar.delegate = self
         navigationItem.hidesSearchBarWhenScrolling = false
+        searchVC.searchBar.tintColor = .white
+        searchVC.searchBar.searchTextField.leftView?.tintColor = .white
+        
+        // SearchBar text
+        let textFieldInsideUISearchBar = searchVC.searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideUISearchBar?.textColor = .white
+        textFieldInsideUISearchBar?.font = textFieldInsideUISearchBar?.font?.withSize(18)
+
+        // SearchBar placeholder
+        let labelInsideUISearchBar = textFieldInsideUISearchBar?.value(forKey: "placeholderLabel") as? UILabel
+        labelInsideUISearchBar?.textColor = .white
     }
 }
 

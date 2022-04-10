@@ -100,8 +100,8 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
         NSLayoutConstraint.activate([
             weatherPicture.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             weatherPicture.bottomAnchor.constraint(equalTo: temperatureLabel.topAnchor, constant: -5),
-            weatherPicture.widthAnchor.constraint(equalToConstant: 48),
-            weatherPicture.heightAnchor.constraint(equalToConstant: 48)
+            weatherPicture.widthAnchor.constraint(equalToConstant: 40),
+            weatherPicture.heightAnchor.constraint(equalToConstant: 40)
         ])
     }
     

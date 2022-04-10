@@ -16,15 +16,15 @@ class CityTableViewCell: UITableViewCell {
     
     private lazy var titleLabel: UILabel =  {
         let titleLabel = UILabel()
-        titleLabel.font = .systemFont(ofSize: 18, weight: .medium)
-        titleLabel.textColor = .black
+        titleLabel.font = .systemFont(ofSize: 28, weight: .medium)
+        titleLabel.textColor = .white
         return titleLabel
     }()
     
     private lazy var timeLabel: UILabel =  {
         let timeLabel = UILabel()
-        timeLabel.font = .systemFont(ofSize: 15, weight: .medium)
-        timeLabel.textColor = .black
+        timeLabel.font = .systemFont(ofSize: 15, weight: .regular)
+        timeLabel.textColor = .white
         return timeLabel
     }()
     
@@ -36,17 +36,18 @@ class CityTableViewCell: UITableViewCell {
     
     private lazy var temperatureLabel: UILabel =  {
         let temperatureLabel = UILabel()
-        temperatureLabel.font = .systemFont(ofSize: 30, weight: .medium)
-        temperatureLabel.textColor = .black
+        temperatureLabel.font = .systemFont(ofSize: 40, weight: .medium)
+        temperatureLabel.textColor = .white
+        temperatureLabel.textAlignment = .right
         return temperatureLabel
     }()
     
     
-
+    
     // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        addSubviews(titleLabel, timeLabel, locationImage, temperatureLabel)
+        addSubviews(timeLabel, locationImage, titleLabel, temperatureLabel)
         setAllConstraints()
     }
     
@@ -74,9 +75,12 @@ class CityTableViewCell: UITableViewCell {
         return newDateFormatter.string(from: theDate)
     }
     
+    
+    
     // MARK: - Configure Cell
     func configure(forecast: WeatherForecast, isLocationImageHidden: Bool) {
         locationImage.isHidden = isLocationImageHidden
+        self.backgroundColor = .clear
         
         temperatureLabel.text = "\(forecast.current?.temp?.getRound ?? 0 )º"
         timeLabel.text = getFormat(time: forecast.current?.dt ?? 0, timezone: forecast.timezone ?? "")
@@ -88,10 +92,11 @@ class CityTableViewCell: UITableViewCell {
             placemarks?.forEach { (placemark) in
                 if let city = placemark.locality {
                     self.titleLabel.text = city
+                } else {
+                    self.titleLabel.text = "Near search place"
                 }
             }
         })
-        
     }
     
     private func setAllConstraints() {
@@ -99,17 +104,6 @@ class CityTableViewCell: UITableViewCell {
         setConstraintsForTimeLabel()
         setConstraintsForLocationImage()
         setConstraintsForTemperatureLabel()
-    }
-
-    private func setConstraintsForTitleLabel() {
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 5),
-            titleLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 20),
-            titleLabel.rightAnchor.constraint(equalTo: temperatureLabel.leftAnchor, constant: -20),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20),
-            titleLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10)
-        ])
     }
     
     private func setConstraintsForTimeLabel() {
@@ -131,16 +125,24 @@ class CityTableViewCell: UITableViewCell {
             locationImage.heightAnchor.constraint(equalToConstant: 15)
         ])
     }
+
+    private func setConstraintsForTitleLabel() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 2),
+            titleLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 20),
+            titleLabel.rightAnchor.constraint(equalTo: temperatureLabel.leftAnchor, constant: -10)
+        ])
+    }
     
     private func setConstraintsForTemperatureLabel() {
         temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            temperatureLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            temperatureLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16),
-            temperatureLabel.widthAnchor.constraint(equalToConstant: 50)
+            temperatureLabel.topAnchor.constraint(equalTo: timeLabel.topAnchor),
+            temperatureLabel.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            temperatureLabel.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -28),
+            temperatureLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 50)
         ])
     }
-    
-    
-    
 }
+

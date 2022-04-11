@@ -10,9 +10,12 @@ import CoreLocation
 
 protocol CityListTableViewControllerDelegate {
     func setWeatherForecast(_ forecast: WeatherForecast)
+    func rememberCityList(_ weatherForecasts: [WeatherForecast])
 }
 
 class MainViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UITableViewDataSource, UITableViewDelegate, CLLocationManagerDelegate {
+    
+    private var cityList: [WeatherForecast] = []
     
     private let primaryColor = UIColor(
         red: 1/255,
@@ -95,6 +98,7 @@ class MainViewController: UIViewController, UICollectionViewDataSource, UICollec
     @objc private func listButtonTapped() {
         let cityListVC = CityListTableViewController()
         cityListVC.delegate = self
+        cityListVC.weatherForecasts = cityList
         let navController = UINavigationController(rootViewController: cityListVC)
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)
@@ -433,6 +437,10 @@ extension MainViewController: CityListTableViewControllerDelegate {
         timeTemperatureCollectionView.reloadData()
         daysTemperatureTableView.reloadData()
         moreDescriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
+    }
+    
+    func rememberCityList(_ weatherForecasts: [WeatherForecast]) {
+        cityList = weatherForecasts
     }
 }
 

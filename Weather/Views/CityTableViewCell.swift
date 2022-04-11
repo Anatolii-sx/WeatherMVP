@@ -81,6 +81,7 @@ class CityTableViewCell: UITableViewCell {
     func configure(forecast: WeatherForecast, isLocationImageHidden: Bool) {
         locationImage.isHidden = isLocationImageHidden
         self.backgroundColor = .clear
+        self.selectionStyle = .none
         
         temperatureLabel.text = "\(forecast.current?.temp?.getRound ?? 0 )º"
         timeLabel.text = getFormat(time: forecast.current?.dt ?? 0, timezone: forecast.timezone ?? "")

@@ -112,10 +112,12 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
         case 0:
             if let forecast = weatherForecastCurrentDestination {
                 delegate.setWeatherForecast(forecast)
+                delegate.rememberCityList(weatherForecasts)
             }
         case 1:
             let forecast = weatherForecasts[indexPath.row]
             delegate.setWeatherForecast(forecast)
+            delegate.rememberCityList(weatherForecasts)
         default:
             break
         }

@@ -8,8 +8,11 @@
 import UIKit
 
 class DayTemperatureTableViewCell: UITableViewCell {
+    
+    // MARK: - Properties
     static let cellID = "DayTemperatureID"
     
+    // MARK: - Views
     private lazy var dayLabel: UILabel =  {
         let dayLabel = UILabel()
         dayLabel.font = .systemFont(ofSize: 20, weight: .medium)
@@ -38,6 +41,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
         return minTemperature
     }()
     
+    // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubviews(dayLabel, weatherPicture, maxTemperature, minTemperature)
@@ -48,12 +52,17 @@ class DayTemperatureTableViewCell: UITableViewCell {
         fatalError("init(coder: \(coder) has not been implemented")
     }
     
+    // MARK: - Configure Cell
     func configure(forecast: Daily, timezone: String) {
         self.layer.borderWidth = 0
         self.backgroundColor = .clear
         self.selectionStyle = .none
         
-        dayLabel.text = getFormat(dayTemperature: forecast.dt ?? 0, timezone: timezone)
+        dayLabel.text = Formatter.getFormat(
+            unixTime: forecast.dt ?? 0,
+            timezone: timezone,
+            formatType: Formatter.FormatType.days.rawValue
+        )
         
         if let maxTemp = forecast.temp?.max, let minTemp = forecast.temp?.min {
             maxTemperature.text = "\(maxTemp.getRound)"
@@ -67,26 +76,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
         }
     }
     
-    private func addSubviews(_ views: UIView...) {
-        views.forEach { addSubview($0) }
-    }
-    
-    private func getFormat(dayTemperature: Int, timezone: String) -> String {
-        
-        let temperature = Double(dayTemperature)
-        let date = "\(Date(timeIntervalSince1970: temperature))"
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
-        guard let theDate = dateFormatter.date(from: date) else { return "" }
-
-        let newDateFormatter = DateFormatter()
-        newDateFormatter.timeZone = TimeZone(identifier: timezone)
-        newDateFormatter.dateFormat = "EEEE"
-        
-        return newDateFormatter.string(from: theDate)
-    }
-    
+    // MARK: - Constraints
     private func setAllConstraints() {
         setConstraintsForDayLabel()
         setConstraintsForWeatherPicture()

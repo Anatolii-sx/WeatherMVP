@@ -8,54 +8,20 @@
 import UIKit
 import CoreLocation
 
-class CityListTableViewController: UITableViewController, UISearchBarDelegate, CLLocationManagerDelegate {
+class CityListTableViewController: UITableViewController {
     
-    
-    
-    private var locationManager = CLLocationManager()
-    
-    private func setLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let first = locations.first else { return }
-        NetworkManager.shared.latitude =  String(format: "%.4f", first.coordinate.latitude)
-        NetworkManager.shared.longitude = String(format: "%.4f", first.coordinate.longitude)
-        locationManager.stopUpdatingLocation()
-        getWeatherForecastCurrentLocation()
-    }
-    
-    private let searchVC = UISearchController(searchResultsController: nil)
+    // MARK: - Public Properties
     var weatherForecasts: [WeatherForecast] = []
     var weatherForecastCurrentDestination: WeatherForecast?
     var delegate: CityListTableViewControllerDelegate!
     
-    private let primaryColor = UIColor(
-        red: 1/255,
-        green: 255/255,
-        blue: 255/255,
-        alpha: 0.4
-    )
+    // MARK: - Private Properties
+    private var locationManager = CLLocationManager()
+    private let searchVC = UISearchController(searchResultsController: nil)
+    private let primaryColor = UIColor(red: 1/255, green: 255/255, blue: 255/255, alpha: 0.4)
+    private let secondaryColor = UIColor(red: 25/255, green: 33/255, blue: 78/255, alpha: 0.4)
     
-    private let secondaryColor = UIColor(
-        red: 25/255,
-        green: 33/255,
-        blue: 78/255,
-        alpha: 0.4
-    )
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        let backgroundView = UIView(frame: tableView.bounds)
-        backgroundView.addVerticalGradientLayer(topColor: primaryColor, bottomColor: secondaryColor)
-        tableView.backgroundColor = .black
-        tableView.backgroundView = backgroundView
-    }
-    
+    // MARK: - Methods of ViewController's Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setLocationManager()
@@ -63,18 +29,23 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
         tableView.register(CityTableViewCell.self, forCellReuseIdentifier: CityTableViewCell.cellID)
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setBackgroundView()
+    }
+    
+    private func setBackgroundView() {
+        let backgroundView = UIView(frame: tableView.bounds)
+        backgroundView.addVerticalGradientLayer(topColor: primaryColor, bottomColor: secondaryColor)
+        tableView.backgroundColor = .black
+        tableView.backgroundView = backgroundView
+    }
+    
+    // MARK: - UITableViewDataSource, UITableViewDelegate
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         70
     }
     
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        if let city = searchBar.text {
-            NetworkManager.shared.city = city
-            getWeatherForecast()
-        }
-    }
-    
-    // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         2
     }
@@ -135,7 +106,55 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
             break
         }
     }
+}
+
+// MARK: - SearchBar
+extension CityListTableViewController: UISearchBarDelegate {
+    private func createSearchBar() {
+        navigationItem.searchController = searchVC
+        searchVC.searchBar.delegate = self
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchVC.searchBar.tintColor = .white
+        searchVC.searchBar.searchTextField.leftView?.tintColor = .white
+        
+        // SearchBar text
+        let textFieldInsideUISearchBar = searchVC.searchBar.value(forKey: "searchField") as? UITextField
+        textFieldInsideUISearchBar?.textColor = .white
+        textFieldInsideUISearchBar?.font = textFieldInsideUISearchBar?.font?.withSize(18)
+
+        // SearchBar placeholder
+        let labelInsideUISearchBar = textFieldInsideUISearchBar?.value(forKey: "placeholderLabel") as? UILabel
+        labelInsideUISearchBar?.textColor = .white
+    }
     
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let city = searchBar.text {
+            NetworkManager.shared.city = city
+            getWeatherForecast()
+        }
+    }
+}
+
+// MARK: - Location Manager
+extension CityListTableViewController: CLLocationManagerDelegate {
+    private func setLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let first = locations.first else { return }
+        NetworkManager.shared.latitude =  String(format: "%.4f", first.coordinate.latitude)
+        NetworkManager.shared.longitude = String(format: "%.4f", first.coordinate.longitude)
+        locationManager.stopUpdatingLocation()
+        getWeatherForecastCurrentLocation()
+    }
+}
+
+// MARK: - Alert Controller
+extension CityListTableViewController {
     private func showAlert() {
         let alert = UIAlertController(
             title: "🙁",
@@ -153,26 +172,9 @@ class CityListTableViewController: UITableViewController, UISearchBarDelegate, C
         
         present(alert, animated: true)
     }
-    
-    // MARK: - Search Bar
-    private func createSearchBar() {
-        navigationItem.searchController = searchVC
-        searchVC.searchBar.delegate = self
-        navigationItem.hidesSearchBarWhenScrolling = false
-        searchVC.searchBar.tintColor = .white
-        searchVC.searchBar.searchTextField.leftView?.tintColor = .white
-        
-        // SearchBar text
-        let textFieldInsideUISearchBar = searchVC.searchBar.value(forKey: "searchField") as? UITextField
-        textFieldInsideUISearchBar?.textColor = .white
-        textFieldInsideUISearchBar?.font = textFieldInsideUISearchBar?.font?.withSize(18)
-
-        // SearchBar placeholder
-        let labelInsideUISearchBar = textFieldInsideUISearchBar?.value(forKey: "placeholderLabel") as? UILabel
-        labelInsideUISearchBar?.textColor = .white
-    }
 }
 
+// MARK: - Network
 extension CityListTableViewController {
     private func getWeatherForecast() {
         NetworkManager.shared.fetchWeatherForecastByCityName(url: NetworkManager.shared.cityUrl) { result in

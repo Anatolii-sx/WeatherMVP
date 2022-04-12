@@ -1,5 +1,5 @@
 //
-//  MoreDescriptionTableViewCell.swift
+//  DescriptionTableViewCell.swift
 //  Weather
 //
 //  Created by Анатолий Миронов on 26.03.2022.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MoreDescriptionTableViewCell: UITableViewCell {
+class DescriptionTableViewCell: UITableViewCell {
     
     static let cellID = "MoreDescriptionID"
     
@@ -39,7 +39,7 @@ class MoreDescriptionTableViewCell: UITableViewCell {
     // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.addSubview(descriptionStackView)
+        addSubview(descriptionStackView)
         setConstraintsForDescriptionStackView()
     }
     

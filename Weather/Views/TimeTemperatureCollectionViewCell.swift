@@ -8,8 +8,11 @@
 import UIKit
 
 class TimeTemperatureCollectionViewCell: UICollectionViewCell {
+    
+    // MARK: - Properties
     static let cellID = "TimeTemperatureID"
 
+    // MARK: - Views
     private lazy var timeLabel: UILabel =  {
         let timeLabel = UILabel()
         timeLabel.textAlignment = .center
@@ -31,7 +34,6 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
         return temperatureLabel
     }()
     
-    
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -43,10 +45,13 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder: \(coder) has not been implemented")
     }
     
-    
     // MARK: - Configure Cell
     func configure(forecast: Hourly, timezone: String) {
-        timeLabel.text = getFormat(dayTime: forecast.dt ?? 0, timezone: timezone)
+        timeLabel.text = Formatter.getFormat(
+            unixTime: forecast.dt ?? 0,
+            timezone: timezone,
+            formatType: Formatter.FormatType.hours.rawValue
+        )
         
         if let temperature = forecast.temp {
             temperatureLabel.text = "\(temperature.getRound)º"
@@ -59,27 +64,7 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    private func addSubviews(_ views: UIView...) {
-        views.forEach { addSubview($0) }
-    }
-    
-    private func getFormat(dayTime: Int, timezone: String) -> String {
-        
-        let time = Double(dayTime)
-        let date = "\(Date(timeIntervalSince1970: time))"
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
-        
-        guard let theDate = dateFormatter.date(from: date) else { return "" }
-
-        let newDateFormatter = DateFormatter()
-        newDateFormatter.timeZone = TimeZone(identifier: timezone)
-        newDateFormatter.dateFormat = "HH"
-        
-        return newDateFormatter.string(from: theDate)
-    }
-    
+    // MARK: - Constraints
     private func setAllConstraints() {
         setConstraintsForTimeLabel()
         setConstraintsForWeatherPicture()

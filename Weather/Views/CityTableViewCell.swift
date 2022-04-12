@@ -10,10 +10,11 @@ import CoreLocation
 
 class CityTableViewCell: UITableViewCell {
     
+    // MARK: - Properties
     static let cellID = "CityID"
-    
     var isCurrentDestination = false
     
+    // MARK: - Views
     private lazy var titleLabel: UILabel =  {
         let titleLabel = UILabel()
         titleLabel.font = .systemFont(ofSize: 28, weight: .medium)
@@ -42,8 +43,6 @@ class CityTableViewCell: UITableViewCell {
         return temperatureLabel
     }()
     
-    
-    
     // MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -55,28 +54,6 @@ class CityTableViewCell: UITableViewCell {
         fatalError("init(coder: \(coder) has not been implemented")
     }
     
-    private func addSubviews(_ views: UIView...) {
-        views.forEach { addSubview($0) }
-    }
-    
-    private func getFormat(time: Int, timezone: String) -> String {
-        
-        let time = Double(time)
-        let date = "\(Date(timeIntervalSince1970: time))"
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss ZZZZ"
-        guard let theDate = dateFormatter.date(from: date) else { return "" }
-
-        let newDateFormatter = DateFormatter()
-        newDateFormatter.timeZone = TimeZone(identifier: timezone)
-        newDateFormatter.dateFormat = "HH:mm"
-        
-        return newDateFormatter.string(from: theDate)
-    }
-    
-    
-    
     // MARK: - Configure Cell
     func configure(forecast: WeatherForecast, isLocationImageHidden: Bool) {
         locationImage.isHidden = isLocationImageHidden
@@ -84,22 +61,18 @@ class CityTableViewCell: UITableViewCell {
         self.selectionStyle = .none
         
         temperatureLabel.text = "\(forecast.current?.temp?.getRound ?? 0 )º"
-        timeLabel.text = getFormat(time: forecast.current?.dt ?? 0, timezone: forecast.timezone ?? "")
+        timeLabel.text = Formatter.getFormat(
+            unixTime: forecast.current?.dt ?? 0,
+            timezone: forecast.timezone ?? "",
+            formatType: Formatter.FormatType.hoursAndMinutes.rawValue
+        )
         
-        let geoCoder = CLGeocoder()
-        let location = CLLocation(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0)
-
-        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, _) -> Void in
-            placemarks?.forEach { (placemark) in
-                if let city = placemark.locality {
-                    self.titleLabel.text = city
-                } else {
-                    self.titleLabel.text = "Near search place"
-                }
-            }
-        })
+        GeoCoder.shared.getPlace(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0) { place in
+            self.titleLabel.text = place
+        }
     }
     
+    // MARK: - Constraints
     private func setAllConstraints() {
         setConstraintsForTitleLabel()
         setConstraintsForTimeLabel()

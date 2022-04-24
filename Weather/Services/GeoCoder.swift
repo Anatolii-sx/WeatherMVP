@@ -19,8 +19,8 @@ class GeoCoder {
 
         geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, _) -> Void in
             placemarks?.forEach { placemark in
-                if let city = placemark.locality {
-                    completion(city)
+                if let place = placemark.locality {
+                    completion(place)
                 } else {
                     completion("Near search place")
                 }

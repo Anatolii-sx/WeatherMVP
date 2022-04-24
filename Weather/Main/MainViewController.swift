@@ -8,6 +8,13 @@
 import UIKit
 import CoreLocation
 
+// MARK: - MainViewControllerProtocol (Connection Presenter -> View)
+protocol MainViewControllerProtocol: AnyObject {
+    func getPlaceName(_ name: String)
+    func updateViews()
+    func showError(message: String)
+}
+
 protocol CityListTableViewControllerDelegate {
     func setWeatherForecast(_ forecast: WeatherForecast)
     func rememberCityList(_ weatherForecasts: [WeatherForecast])
@@ -16,33 +23,10 @@ protocol CityListTableViewControllerDelegate {
 class MainViewController: UIViewController {
     
     // MARK: - Properties
-    private var locationManager = CLLocationManager()
-    private var forecastList: [WeatherForecast] = []
-    private var weatherForecast: WeatherForecast?
+    private var presenter: MainPresenter!
     
     private let primaryColor = UIColor(red: 1/255, green: 255/255, blue: 255/255, alpha: 0.4)
     private let secondaryColor = UIColor(red: 25/255, green: 33/255, blue: 78/255, alpha: 0.4)
-    
-    private var weatherDescriptions: [[String: Any]] {
-        [
-            ["sunrise": Formatter.getFormat(
-                unixTime: weatherForecast?.current?.sunrise ?? 0,
-                timezone: weatherForecast?.timezone ?? "",
-                formatType: Formatter.FormatType.hoursAndMinutes.rawValue
-            )],
-            ["sunset": Formatter.getFormat(
-                unixTime: weatherForecast?.current?.sunset ?? 0,
-                timezone: weatherForecast?.timezone ?? "",
-                formatType: Formatter.FormatType.hoursAndMinutes.rawValue
-            )],
-            ["humidity": "\(weatherForecast?.current?.humidity ?? 0) %"],
-            ["wind": "\(weatherForecast?.current?.windSpeed?.getRound ?? 0) m/s"],
-            ["feels like": "\(weatherForecast?.current?.feelsLike?.getRound ?? 0)º"],
-            ["pressure": "\(Double(weatherForecast?.current?.pressure ?? 0) * 0.75) mm Hg"],
-            ["visibility": "\(Double(weatherForecast?.current?.visibility ?? 0)/1000) km"],
-            ["uv index": weatherForecast?.current?.uvi?.getRound ?? 0]
-        ]
-    }
     
     private lazy var mainScrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -148,7 +132,8 @@ class MainViewController: UIViewController {
     // MARK: - Methods of ViewController's Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setLocationManager()
+        presenter = MainPresenter(view: self)
+        presenter.getCurrentPlace()
         addAllSubviews()
         setAllConstraints()
         setToolbar()
@@ -214,9 +199,11 @@ class MainViewController: UIViewController {
     }
     
     @objc private func listButtonTapped() {
-        let cityListVC = CityListTableViewController()
+        let cityListVC = PlaceListTableViewController()
         cityListVC.delegate = self
-        cityListVC.weatherForecasts = forecastList
+        cityListVC.presenter = PlaceListPresenter(view: cityListVC)
+        cityListVC.presenter.setListOfWeatherForecasts(presenter.forecastList)
+        
         let navController = UINavigationController(rootViewController: cityListVC)
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true)
@@ -224,16 +211,14 @@ class MainViewController: UIViewController {
     }
     
     @objc private func locationButtonTapped() {
-        locationManager.startUpdatingLocation()
+        presenter.getCurrentPlace()
         toolbarItems?.first?.image = UIImage(systemName: "location.fill")
     }
     
     // MARK: - Other Private Methods
     private func updateHeaderLabels() {
-        weatherStatusLabel.text = weatherForecast?.current?.weather?.first?.main ?? ""
-        if let temperature = weatherForecast?.current?.temp {
-            temperatureLabel.text = "\(temperature.getRound)ºC"
-        }
+        weatherStatusLabel.text = presenter.weatherStatus
+        temperatureLabel.text = presenter.temperature
     }
     
     // MARK: - Constraints
@@ -329,46 +314,17 @@ class MainViewController: UIViewController {
     }
 }
 
-// MARK: - Location Manager
-extension MainViewController: CLLocationManagerDelegate {
-    private func setLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let first = locations.first else { return }
-        NetworkManager.shared.latitude =  String(format: "%.4f", first.coordinate.latitude)
-        NetworkManager.shared.longitude = String(format: "%.4f", first.coordinate.longitude)
-        locationManager.stopUpdatingLocation()
-        
-        getWeatherForecast()
-        
-        let geoCoder = CLGeocoder()
-        let location = CLLocation(latitude: first.coordinate.latitude, longitude: first.coordinate.longitude)
-
-        geoCoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, _) -> Void in
-            placemarks?.forEach { (placemark) in
-                if let city = placemark.locality {
-                    self.placeLabel.text = city
-                }
-            }
-        })
-    }
-}
-
 // MARK: - UICollectionViewDataSource, UICollectionViewDelegate (Temperature By Time)
 extension MainViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        weatherForecast?.hourly?.count ?? 0
+        presenter.numberOfItemsInSectionCollectionView
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TimeTemperatureCollectionViewCell.cellID, for: indexPath) as? TimeTemperatureCollectionViewCell else { return UICollectionViewCell() }
-        if let hourlyForecasts = weatherForecast?.hourly {
-            cell.configure(forecast: hourlyForecasts[indexPath.row], timezone: weatherForecast?.timezone ?? "")
+        if let _ = presenter.weatherForecast?.hourly {
+            cell.presenter = presenter.cellTimeTemperaturePresenter(at: indexPath)
+            cell.configure()
         }
         return cell
     }
@@ -380,11 +336,11 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
         var count = 0
         
         if tableView == daysTemperatureTableView {
-           count = weatherForecast?.daily?.count ?? 0
+            count = presenter.numberOfRowsDailyTableViewSection
         } else if tableView == descriptionTableView {
-            count = weatherDescriptions.count
+            count = presenter.numberOfRowsDescriptionTableViewSection
         }
-        
+
         return count
     }
     
@@ -394,16 +350,18 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
         // Days
         if tableView == daysTemperatureTableView {
             guard let dayTemperatureCell = daysTemperatureTableView.dequeueReusableCell(withIdentifier: DayTemperatureTableViewCell.cellID) as? DayTemperatureTableViewCell else { return UITableViewCell() }
-            if let dailyForecasts = weatherForecast?.daily {
-                dayTemperatureCell.configure(forecast: dailyForecasts[indexPath.row], timezone: weatherForecast?.timezone ?? "")
+            if let _ = presenter.weatherForecast?.daily {
+                dayTemperatureCell.presenter = presenter.cellDayTemperaturePresenter(at: indexPath)
+                dayTemperatureCell.configure()
             }
+            
             cell = dayTemperatureCell
             
         // Description Table View
         } else if tableView == descriptionTableView {
             guard let moreDescriptionCell = descriptionTableView.dequeueReusableCell(withIdentifier: DescriptionTableViewCell.cellID) as? DescriptionTableViewCell else { return UITableViewCell() }
-            let description = weatherDescriptions[indexPath.row]
-            moreDescriptionCell.configure(description: description)
+            moreDescriptionCell.presenter = presenter.cellDescriptionPresenter(at: indexPath)
+            moreDescriptionCell.configure()
             cell = moreDescriptionCell
         }
         
@@ -418,7 +376,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
 // MARK: - CityListTableViewControllerDelegate
 extension MainViewController: CityListTableViewControllerDelegate {
     func setWeatherForecast(_ forecast: WeatherForecast) {
-        weatherForecast = forecast
+        presenter.weatherForecast = forecast
         
         GeoCoder.shared.getPlace(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0) { place in
             self.placeLabel.text = place
@@ -427,7 +385,7 @@ extension MainViewController: CityListTableViewControllerDelegate {
         updateAllViews()
     }
     
-    private func updateAllViews() {
+    func updateAllViews() {
         updateHeaderLabels()
         timeTemperatureCollectionView.reloadData()
         daysTemperatureTableView.reloadData()
@@ -435,37 +393,16 @@ extension MainViewController: CityListTableViewControllerDelegate {
     }
     
     func rememberCityList(_ weatherForecasts: [WeatherForecast]) {
-        forecastList = weatherForecasts
-    }
-}
-
-// MARK: - Network
-extension MainViewController {
-    private func getWeatherForecast() {
-        NetworkManager.shared.fetchWeatherForecastByLocation(url: NetworkManager.shared.locationUrl) { result in
-            switch result {
-            case .success(let weatherForecast):
-                self.weatherForecast = weatherForecast
-                self.updateHeaderLabels()
-                self.timeTemperatureCollectionView.reloadData()
-                self.daysTemperatureTableView.reloadData()
-                self.descriptionTableView.reloadData() // Объединить всё в один метод по обновлению)
-            case .failure(let error):
-                print(error)
-                DispatchQueue.main.async {
-                    self.showAlert()
-                }
-            }
-        }
+        presenter.forecastList = weatherForecasts
     }
 }
 
 // MARK: - Alert Controller
 extension MainViewController {
-    private func showAlert() {
+    func showAlert(message: String) {
         let alert = UIAlertController(
             title: "Oooops",
-            message: "Check your internet connection",
+            message: message,
             preferredStyle: .alert
         )
         
@@ -477,5 +414,20 @@ extension MainViewController {
         )
         
         present(alert, animated: true)
+    }
+}
+
+// MARK: - Realization MainViewControllerProtocol Methods (Connection Presenter -> View)
+extension MainViewController: MainViewControllerProtocol {
+    func getPlaceName(_ name: String) {
+        placeLabel.text = name
+    }
+    
+    func updateViews() {
+        updateAllViews()
+    }
+    
+    func showError(message: String) {
+        showAlert(message: message)
     }
 }

@@ -11,6 +11,7 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Properties
     static let cellID = "TimeTemperatureID"
+    var presenter: TimeTemperatureCellProtocol!
 
     // MARK: - Views
     private lazy var timeLabel: UILabel =  {
@@ -46,21 +47,11 @@ class TimeTemperatureCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure(forecast: Hourly, timezone: String) {
-        timeLabel.text = Formatter.getFormat(
-            unixTime: forecast.dt ?? 0,
-            timezone: timezone,
-            formatType: Formatter.FormatType.hours.rawValue
-        )
-        
-        if let temperature = forecast.temp {
-            temperatureLabel.text = "\(temperature.getRound)º"
-        }
-        
-        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
-            if let imageData = imageData {
-                self.weatherPicture.image = UIImage(data: imageData)
-            }
+    func configure() {
+        timeLabel.text = presenter.time
+        temperatureLabel.text = presenter.temperature
+        presenter.getImage { imageData in
+            self.weatherPicture.image = UIImage(data: imageData)
         }
     }
     

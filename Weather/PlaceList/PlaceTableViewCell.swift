@@ -1,5 +1,5 @@
 //
-//  CityTableViewCell.swift
+//  PlaceTableViewCell.swift
 //  Weather
 //
 //  Created by Анатолий Миронов on 03.04.2022.
@@ -8,11 +8,12 @@
 import UIKit
 import CoreLocation
 
-class CityTableViewCell: UITableViewCell {
+class PlaceTableViewCell: UITableViewCell {
     
     // MARK: - Properties
     static let cellID = "CityID"
     var isCurrentDestination = false
+    var presenter: PlaceCellPresenterProtocol!
     
     // MARK: - Views
     private lazy var titleLabel: UILabel =  {
@@ -32,6 +33,7 @@ class CityTableViewCell: UITableViewCell {
     private lazy var locationImage: UIImageView = {
         let currentDestinationImage = UIImageView()
         currentDestinationImage.image = UIImage(systemName: "location.fill")
+        currentDestinationImage.tintColor = .white
         return currentDestinationImage
     }()
     
@@ -48,6 +50,7 @@ class CityTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubviews(timeLabel, locationImage, titleLabel, temperatureLabel)
         setAllConstraints()
+        backgroundColor = .clear
     }
     
     required init?(coder: NSCoder) {
@@ -55,19 +58,13 @@ class CityTableViewCell: UITableViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure(forecast: WeatherForecast, isLocationImageHidden: Bool) {
+    func configure(isLocationImageHidden: Bool) {
         locationImage.isHidden = isLocationImageHidden
-        self.backgroundColor = .clear
-        self.selectionStyle = .none
+        selectionStyle = .none
         
-        temperatureLabel.text = "\(forecast.current?.temp?.getRound ?? 0 )º"
-        timeLabel.text = Formatter.getFormat(
-            unixTime: forecast.current?.dt ?? 0,
-            timezone: forecast.timezone ?? "",
-            formatType: Formatter.FormatType.hoursAndMinutes.rawValue
-        )
-        
-        GeoCoder.shared.getPlace(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0) { place in
+        temperatureLabel.text = presenter.temperature
+        timeLabel.text = presenter.time
+        presenter.getTitle { place in
             self.titleLabel.text = place
         }
     }
@@ -119,4 +116,3 @@ class CityTableViewCell: UITableViewCell {
         ])
     }
 }
-

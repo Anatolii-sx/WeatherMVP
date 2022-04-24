@@ -10,6 +10,7 @@ import UIKit
 class DescriptionTableViewCell: UITableViewCell {
     
     static let cellID = "MoreDescriptionID"
+    var presenter: DescriptionCellProtocol!
     
     private lazy var descriptionStackView: UIStackView = {
         let descriptionStackView = UIStackView(arrangedSubviews: [
@@ -48,13 +49,13 @@ class DescriptionTableViewCell: UITableViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure(description: [String: Any]) {
+    func configure() {
         self.backgroundColor = .clear
         self.selectionStyle = .none
         
-        for (title, text) in description {
-            titleLabel.text = title.uppercased()
-            descriptionLabel.text = "\(text)"
+        for (title, text) in presenter.getInfo() {
+            titleLabel.text = title
+            descriptionLabel.text = text
         }
     }
     

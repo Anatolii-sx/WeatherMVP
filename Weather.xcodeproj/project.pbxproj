@@ -10,8 +10,15 @@
 		9C014C0C2805EE1F00B72054 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C014C0B2805EE1F00B72054 /* Formatter.swift */; };
 		9C014C0E2805EE7600B72054 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C014C0D2805EE7600B72054 /* Extensions.swift */; };
 		9C014C102805F1E500B72054 /* GeoCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C014C0F2805F1E500B72054 /* GeoCoder.swift */; };
-		9C50655627F9D45500CAF785 /* CityListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C50655527F9D45500CAF785 /* CityListTableViewController.swift */; };
-		9C50655827F9E78400CAF785 /* CityTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C50655727F9E78400CAF785 /* CityTableViewCell.swift */; };
+		9C014C12280738FC00B72054 /* PlaceListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C014C11280738FC00B72054 /* PlaceListPresenter.swift */; };
+		9C0ACB0C280AFD9600D54CD3 /* PlaceCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */; };
+		9C1998362815A1050031B192 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1998352815A1050031B192 /* LocationManager.swift */; };
+		9C453044280C667D00CA3F32 /* MainPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C453043280C667D00CA3F32 /* MainPresenter.swift */; };
+		9C453046280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C453045280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift */; };
+		9C50655627F9D45500CAF785 /* PlaceListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */; };
+		9C50655827F9E78400CAF785 /* PlaceTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C50655727F9E78400CAF785 /* PlaceTableViewCell.swift */; };
+		9C9709F0280DF99200A18650 /* DayTemperatureCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9709EF280DF99200A18650 /* DayTemperatureCellPresenter.swift */; };
+		9C9709F2280E042700A18650 /* DescriptionCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9709F1280E042700A18650 /* DescriptionCellPresenter.swift */; };
 		9CA545FC27F0E70E002CE690 /* WeatherForecast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA545FB27F0E70E002CE690 /* WeatherForecast.swift */; };
 		9CA545FF27F0E822002CE690 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA545FE27F0E822002CE690 /* NetworkManager.swift */; };
 		9CB24F7A27FCBBCA00CA957A /* City.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB24F7927FCBBCA00CA957A /* City.swift */; };
@@ -29,8 +36,15 @@
 		9C014C0B2805EE1F00B72054 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
 		9C014C0D2805EE7600B72054 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		9C014C0F2805F1E500B72054 /* GeoCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoCoder.swift; sourceTree = "<group>"; };
-		9C50655527F9D45500CAF785 /* CityListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityListTableViewController.swift; sourceTree = "<group>"; };
-		9C50655727F9E78400CAF785 /* CityTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityTableViewCell.swift; sourceTree = "<group>"; };
+		9C014C11280738FC00B72054 /* PlaceListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceListPresenter.swift; sourceTree = "<group>"; };
+		9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCellPresenter.swift; sourceTree = "<group>"; };
+		9C1998352815A1050031B192 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		9C453043280C667D00CA3F32 /* MainPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPresenter.swift; sourceTree = "<group>"; };
+		9C453045280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeTemperatureCellPresenter.swift; sourceTree = "<group>"; };
+		9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceListTableViewController.swift; sourceTree = "<group>"; };
+		9C50655727F9E78400CAF785 /* PlaceTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceTableViewCell.swift; sourceTree = "<group>"; };
+		9C9709EF280DF99200A18650 /* DayTemperatureCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayTemperatureCellPresenter.swift; sourceTree = "<group>"; };
+		9C9709F1280E042700A18650 /* DescriptionCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionCellPresenter.swift; sourceTree = "<group>"; };
 		9CA545FB27F0E70E002CE690 /* WeatherForecast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherForecast.swift; sourceTree = "<group>"; };
 		9CA545FE27F0E822002CE690 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		9CB24F7927FCBBCA00CA957A /* City.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = City.swift; sourceTree = "<group>"; };
@@ -57,6 +71,56 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9C453047280C80DD00CA3F32 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				9CD775EB27EB977200F9DF34 /* MainViewController.swift */,
+				9C453043280C667D00CA3F32 /* MainPresenter.swift */,
+				9C453048280C80E300CA3F32 /* TimeTemperature */,
+				9C453049280C80F600CA3F32 /* DayTemperature */,
+				9C45304A280C810600CA3F32 /* Description */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		9C453048280C80E300CA3F32 /* TimeTemperature */ = {
+			isa = PBXGroup;
+			children = (
+				9CD7760127EF3C7400F9DF34 /* TimeTemperatureCollectionViewCell.swift */,
+				9C453045280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift */,
+			);
+			path = TimeTemperature;
+			sourceTree = "<group>";
+		};
+		9C453049280C80F600CA3F32 /* DayTemperature */ = {
+			isa = PBXGroup;
+			children = (
+				9CD7762627EF9DDF00F9DF34 /* DayTemperatureTableViewCell.swift */,
+				9C9709EF280DF99200A18650 /* DayTemperatureCellPresenter.swift */,
+			);
+			path = DayTemperature;
+			sourceTree = "<group>";
+		};
+		9C45304A280C810600CA3F32 /* Description */ = {
+			isa = PBXGroup;
+			children = (
+				9CD7762827EFAEFE00F9DF34 /* DescriptionTableViewCell.swift */,
+				9C9709F1280E042700A18650 /* DescriptionCellPresenter.swift */,
+			);
+			path = Description;
+			sourceTree = "<group>";
+		};
+		9C45304B280C811600CA3F32 /* PlaceList */ = {
+			isa = PBXGroup;
+			children = (
+				9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */,
+				9C014C11280738FC00B72054 /* PlaceListPresenter.swift */,
+				9C50655727F9E78400CAF785 /* PlaceTableViewCell.swift */,
+				9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */,
+			);
+			path = PlaceList;
+			sourceTree = "<group>";
+		};
 		9CA545FA27F0E2E5002CE690 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +137,7 @@
 				9C014C0B2805EE1F00B72054 /* Formatter.swift */,
 				9C014C0D2805EE7600B72054 /* Extensions.swift */,
 				9C014C0F2805F1E500B72054 /* GeoCoder.swift */,
+				9C1998352815A1050031B192 /* LocationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -96,8 +161,8 @@
 		9CD775E627EB977200F9DF34 /* Weather */ = {
 			isa = PBXGroup;
 			children = (
-				9CD7760327EF44E900F9DF34 /* Views */,
-				9CD775FC27EB99B400F9DF34 /* ViewControllers */,
+				9C453047280C80DD00CA3F32 /* Main */,
+				9C45304B280C811600CA3F32 /* PlaceList */,
 				9CA545FA27F0E2E5002CE690 /* Models */,
 				9CA545FD27F0E80E002CE690 /* Services */,
 				9CD775FE27EB99DD00F9DF34 /* Storyboards */,
@@ -117,15 +182,6 @@
 			path = App;
 			sourceTree = "<group>";
 		};
-		9CD775FC27EB99B400F9DF34 /* ViewControllers */ = {
-			isa = PBXGroup;
-			children = (
-				9CD775EB27EB977200F9DF34 /* MainViewController.swift */,
-				9C50655527F9D45500CAF785 /* CityListTableViewController.swift */,
-			);
-			path = ViewControllers;
-			sourceTree = "<group>";
-		};
 		9CD775FD27EB99C800F9DF34 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -140,17 +196,6 @@
 				9CD775F227EB977200F9DF34 /* LaunchScreen.storyboard */,
 			);
 			path = Storyboards;
-			sourceTree = "<group>";
-		};
-		9CD7760327EF44E900F9DF34 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				9CD7760127EF3C7400F9DF34 /* TimeTemperatureCollectionViewCell.swift */,
-				9CD7762627EF9DDF00F9DF34 /* DayTemperatureTableViewCell.swift */,
-				9CD7762827EFAEFE00F9DF34 /* DescriptionTableViewCell.swift */,
-				9C50655727F9E78400CAF785 /* CityTableViewCell.swift */,
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -224,18 +269,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CD775EC27EB977200F9DF34 /* MainViewController.swift in Sources */,
+				9C014C12280738FC00B72054 /* PlaceListPresenter.swift in Sources */,
+				9C453046280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift in Sources */,
+				9C453044280C667D00CA3F32 /* MainPresenter.swift in Sources */,
 				9CD775E827EB977200F9DF34 /* AppDelegate.swift in Sources */,
-				9C50655827F9E78400CAF785 /* CityTableViewCell.swift in Sources */,
+				9C50655827F9E78400CAF785 /* PlaceTableViewCell.swift in Sources */,
 				9CD7762927EFAEFE00F9DF34 /* DescriptionTableViewCell.swift in Sources */,
 				9CD7762727EF9DDF00F9DF34 /* DayTemperatureTableViewCell.swift in Sources */,
-				9C50655627F9D45500CAF785 /* CityListTableViewController.swift in Sources */,
+				9C50655627F9D45500CAF785 /* PlaceListTableViewController.swift in Sources */,
+				9C9709F2280E042700A18650 /* DescriptionCellPresenter.swift in Sources */,
 				9C014C0C2805EE1F00B72054 /* Formatter.swift in Sources */,
 				9CA545FF27F0E822002CE690 /* NetworkManager.swift in Sources */,
 				9C014C0E2805EE7600B72054 /* Extensions.swift in Sources */,
 				9CB24F7A27FCBBCA00CA957A /* City.swift in Sources */,
+				9C9709F0280DF99200A18650 /* DayTemperatureCellPresenter.swift in Sources */,
 				9CD7760227EF3C7400F9DF34 /* TimeTemperatureCollectionViewCell.swift in Sources */,
 				9C014C102805F1E500B72054 /* GeoCoder.swift in Sources */,
+				9C1998362815A1050031B192 /* LocationManager.swift in Sources */,
 				9CD775EA27EB977200F9DF34 /* SceneDelegate.swift in Sources */,
+				9C0ACB0C280AFD9600D54CD3 /* PlaceCellPresenter.swift in Sources */,
 				9CA545FC27F0E70E002CE690 /* WeatherForecast.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

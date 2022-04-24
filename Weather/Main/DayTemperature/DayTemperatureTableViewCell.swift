@@ -11,6 +11,7 @@ class DayTemperatureTableViewCell: UITableViewCell {
     
     // MARK: - Properties
     static let cellID = "DayTemperatureID"
+    var presenter: DayTemperatureCellProtocol!
     
     // MARK: - Views
     private lazy var dayLabel: UILabel =  {
@@ -53,26 +54,17 @@ class DayTemperatureTableViewCell: UITableViewCell {
     }
     
     // MARK: - Configure Cell
-    func configure(forecast: Daily, timezone: String) {
+    func configure() {
         self.layer.borderWidth = 0
         self.backgroundColor = .clear
         self.selectionStyle = .none
         
-        dayLabel.text = Formatter.getFormat(
-            unixTime: forecast.dt ?? 0,
-            timezone: timezone,
-            formatType: Formatter.FormatType.days.rawValue
-        )
+        dayLabel.text = presenter.day
+        maxTemperature.text = presenter.maxTemp
+        minTemperature.text = presenter.minTemp
         
-        if let maxTemp = forecast.temp?.max, let minTemp = forecast.temp?.min {
-            maxTemperature.text = "\(maxTemp.getRound)"
-            minTemperature.text = "\(minTemp.getRound)"
-        }
-        
-        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
-            if let imageData = imageData {
-                self.weatherPicture.image = UIImage(data: imageData)
-            }
+        presenter.getImage { imageData in
+            self.weatherPicture.image = UIImage(data: imageData)
         }
     }
     

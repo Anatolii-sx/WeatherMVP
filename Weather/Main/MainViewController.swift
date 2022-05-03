@@ -16,7 +16,7 @@ protocol MainViewControllerProtocol: AnyObject {
 }
 
 protocol CityListTableViewControllerDelegate {
-    func setWeatherForecast(_ forecast: WeatherForecast)
+    func setWeatherForecast(_ forecast: ForecastCore)
     func rememberCityList(_ weatherForecasts: [WeatherForecast])
 }
 
@@ -202,7 +202,7 @@ class MainViewController: UIViewController {
         let cityListVC = PlaceListTableViewController()
         cityListVC.delegate = self
         cityListVC.presenter = PlaceListPresenter(view: cityListVC)
-        cityListVC.presenter.setListOfWeatherForecasts(presenter.forecastList)
+        cityListVC.presenter.setListOfWeatherForecasts()
         
         let navController = UINavigationController(rootViewController: cityListVC)
         navController.modalPresentationStyle = .fullScreen
@@ -375,13 +375,9 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
 
 // MARK: - CityListTableViewControllerDelegate
 extension MainViewController: CityListTableViewControllerDelegate {
-    func setWeatherForecast(_ forecast: WeatherForecast) {
+    func setWeatherForecast(_ forecast: ForecastCore) {
         presenter.weatherForecast = forecast
-        
-        GeoCoder.shared.getPlace(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0) { place in
-            self.placeLabel.text = place
-        }
-        
+        placeLabel.text = forecast.title
         updateAllViews()
     }
     

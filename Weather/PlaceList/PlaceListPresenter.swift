@@ -9,8 +9,8 @@ import Foundation
 
 // MARK: - PlaceListPresenterProtocol (Connection View -> Presenter)
 protocol PlaceListPresenterProtocol {
-    var weatherForecastCurrentDestination: WeatherForecast? { get }
-    var weatherForecasts: [WeatherForecast] { get }
+    var weatherForecastCurrentDestination: ForecastCore? { get }
+    var weatherForecasts: [ForecastCore] { get }
     var numberOfSections: Int { get }
     var heightForRow: Int { get }
     init(view: PlaceListTableViewProtocol)
@@ -19,7 +19,7 @@ protocol PlaceListPresenterProtocol {
     func deleteButtonTapped(indexPath: IndexPath)
     func getWeatherForecast()
     func getWeatherForecastCurrentLocation()
-    func setListOfWeatherForecasts(_ forecastList: [WeatherForecast])
+    func setListOfWeatherForecasts()
     func cellPresenter(at indexPath: IndexPath, isZeroSection: Bool) -> PlaceCellPresenterProtocol?
     func searchButtonClicked(text: String)
     func getCurrentPlace()
@@ -27,8 +27,8 @@ protocol PlaceListPresenterProtocol {
 
 class PlaceListPresenter: PlaceListPresenterProtocol, LocationManagerPlaceListDelegate {
 
-    var weatherForecastCurrentDestination: WeatherForecast?
-    var weatherForecasts: [WeatherForecast] = []
+    var weatherForecastCurrentDestination: ForecastCore?
+    var weatherForecasts: [ForecastCore] = []
     var numberOfSections = 2
     var heightForRow = 70
     
@@ -43,27 +43,13 @@ class PlaceListPresenter: PlaceListPresenterProtocol, LocationManagerPlaceListDe
     }
     
     func deleteButtonTapped(indexPath: IndexPath) {
+        StorageManager.shared.delete(weatherForecasts[indexPath.row])
         weatherForecasts.remove(at: indexPath.row)
         view.deleteRow(indexPath: indexPath)
     }
     
-    func getWeatherForecast() {
-        NetworkManager.shared.fetchWeatherForecastByCityName(url: NetworkManager.shared.cityUrl) { result in
-            switch result {
-            case .success(let weatherForecast):
-                self.weatherForecasts.append(weatherForecast)
-                self.view.insertRow()
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self.view.showError(message: "The place was not founded")
-                }
-                print(error)
-            }
-        }
-    }
-    
-    func setListOfWeatherForecasts(_ forecastList: [WeatherForecast]) {
-        weatherForecasts = forecastList
+    func setListOfWeatherForecasts() {
+        getForecastsList()
     }
     
     func searchButtonClicked(text: String) {
@@ -99,11 +85,47 @@ class PlaceListPresenter: PlaceListPresenterProtocol, LocationManagerPlaceListDe
         NetworkManager.shared.fetchWeatherForecastByLocation(url: NetworkManager.shared.locationUrl) { result in
             switch result {
             case .success(let weatherForecast):
-                self.weatherForecastCurrentDestination = weatherForecast
-                let rowIndex = IndexPath(row: 0, section: 0)
-                self.view.reloadRows(indexPath: rowIndex)
+                StorageManager.shared.deleteCurrentLocationPlace()
+                StorageManager.shared.save(weatherForecast, isCurrentLocation: true) { forecast in
+                    self.weatherForecastCurrentDestination = forecast
+                    let rowIndex = IndexPath(row: 0, section: 0)
+                    self.view.reloadRows(indexPath: rowIndex)
+                }
             case .failure(let error):
                 print(error)
+            }
+        }
+    }
+    
+    func getWeatherForecast() {
+        NetworkManager.shared.fetchWeatherForecastByCityName(url: NetworkManager.shared.cityUrl) { result in
+            switch result {
+            case .success(let weatherForecast):
+                StorageManager.shared.save(weatherForecast, isCurrentLocation: false) { forecast in
+                    self.weatherForecasts.append(forecast)
+                    self.view.insertRow()
+                    print(forecast)
+                }
+                
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.view.showError(message: "The place was not founded")
+                }
+                print(error)
+            }
+        }
+    }
+    
+    func getForecastsList() {
+        StorageManager.shared.fetchData { result in
+            switch result {
+            case .success(let result):
+                let currentLocationForecast = result.filter { $0.isCurrentLocation == true }
+                self.weatherForecastCurrentDestination = currentLocationForecast.first
+                self.weatherForecasts = result.filter { $0.isCurrentLocation == false }
+                self.view.reloadAllRows()
+            case .failure(let error):
+                print(error.localizedDescription)
             }
         }
     }

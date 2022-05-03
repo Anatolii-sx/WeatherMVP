@@ -13,6 +13,8 @@
 		9C014C12280738FC00B72054 /* PlaceListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C014C11280738FC00B72054 /* PlaceListPresenter.swift */; };
 		9C0ACB0C280AFD9600D54CD3 /* PlaceCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */; };
 		9C1998362815A1050031B192 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1998352815A1050031B192 /* LocationManager.swift */; };
+		9C44A951281EC9E00064C760 /* CoreDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9C44A94F281EC9E00064C760 /* CoreDataModel.xcdatamodeld */; };
+		9C44A953281ECAAF0064C760 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C44A952281ECAAF0064C760 /* StorageManager.swift */; };
 		9C453044280C667D00CA3F32 /* MainPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C453043280C667D00CA3F32 /* MainPresenter.swift */; };
 		9C453046280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C453045280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift */; };
 		9C50655627F9D45500CAF785 /* PlaceListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */; };
@@ -39,6 +41,8 @@
 		9C014C11280738FC00B72054 /* PlaceListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceListPresenter.swift; sourceTree = "<group>"; };
 		9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceCellPresenter.swift; sourceTree = "<group>"; };
 		9C1998352815A1050031B192 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		9C44A950281EC9E00064C760 /* CoreDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataModel.xcdatamodel; sourceTree = "<group>"; };
+		9C44A952281ECAAF0064C760 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		9C453043280C667D00CA3F32 /* MainPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPresenter.swift; sourceTree = "<group>"; };
 		9C453045280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeTemperatureCellPresenter.swift; sourceTree = "<group>"; };
 		9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceListTableViewController.swift; sourceTree = "<group>"; };
@@ -114,8 +118,8 @@
 			isa = PBXGroup;
 			children = (
 				9C50655527F9D45500CAF785 /* PlaceListTableViewController.swift */,
-				9C014C11280738FC00B72054 /* PlaceListPresenter.swift */,
 				9C50655727F9E78400CAF785 /* PlaceTableViewCell.swift */,
+				9C014C11280738FC00B72054 /* PlaceListPresenter.swift */,
 				9C0ACB0B280AFD9600D54CD3 /* PlaceCellPresenter.swift */,
 			);
 			path = PlaceList;
@@ -126,6 +130,7 @@
 			children = (
 				9CA545FB27F0E70E002CE690 /* WeatherForecast.swift */,
 				9CB24F7927FCBBCA00CA957A /* City.swift */,
+				9C44A94F281EC9E00064C760 /* CoreDataModel.xcdatamodeld */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -134,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				9CA545FE27F0E822002CE690 /* NetworkManager.swift */,
+				9C44A952281ECAAF0064C760 /* StorageManager.swift */,
 				9C014C0B2805EE1F00B72054 /* Formatter.swift */,
 				9C014C0D2805EE7600B72054 /* Extensions.swift */,
 				9C014C0F2805F1E500B72054 /* GeoCoder.swift */,
@@ -270,8 +276,10 @@
 			files = (
 				9CD775EC27EB977200F9DF34 /* MainViewController.swift in Sources */,
 				9C014C12280738FC00B72054 /* PlaceListPresenter.swift in Sources */,
+				9C44A951281EC9E00064C760 /* CoreDataModel.xcdatamodeld in Sources */,
 				9C453046280C70C100CA3F32 /* TimeTemperatureCellPresenter.swift in Sources */,
 				9C453044280C667D00CA3F32 /* MainPresenter.swift in Sources */,
+				9C44A953281ECAAF0064C760 /* StorageManager.swift in Sources */,
 				9CD775E827EB977200F9DF34 /* AppDelegate.swift in Sources */,
 				9C50655827F9E78400CAF785 /* PlaceTableViewCell.swift in Sources */,
 				9CD7762927EFAEFE00F9DF34 /* DescriptionTableViewCell.swift in Sources */,
@@ -500,6 +508,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		9C44A94F281EC9E00064C760 /* CoreDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				9C44A950281EC9E00064C760 /* CoreDataModel.xcdatamodel */,
+			);
+			currentVersion = 9C44A950281EC9E00064C760 /* CoreDataModel.xcdatamodel */;
+			path = CoreDataModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 9CD775DC27EB977200F9DF34 /* Project object */;
 }

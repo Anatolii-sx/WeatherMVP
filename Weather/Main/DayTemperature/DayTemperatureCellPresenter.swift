@@ -11,18 +11,18 @@ protocol DayTemperatureCellProtocol {
     var day: String { get }
     var maxTemp: String { get }
     var minTemp: String { get }
-    init(forecast: Daily, timezone: String)
+    init(forecast: DailyCore, timezone: String)
     func getImage(completion: @escaping(Data) -> Void)
 }
 
 class DayTemperatureCellPresenter: DayTemperatureCellProtocol {
     
-    private var forecast: Daily
+    private var forecast: DailyCore
     private var timezone: String
     
     var day: String {
         Formatter.getFormat(
-            unixTime: forecast.dt ?? 0,
+            unixTime: Int(forecast.dt),
             timezone: timezone,
             formatType: Formatter.FormatType.days.rawValue
         )
@@ -38,13 +38,15 @@ class DayTemperatureCellPresenter: DayTemperatureCellProtocol {
         return "\(minTemp.getRound)"
     }
     
-    required init(forecast: Daily, timezone: String) {
+    required init(forecast: DailyCore, timezone: String) {
         self.forecast = forecast
         self.timezone = timezone
     }
     
     func getImage(completion: @escaping (Data) -> Void) {
-        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
+        guard let weather = forecast.weather?.allObjects as? [WeatherCore] else { return }
+        
+        NetworkManager.shared.fetchWeatherImage(icon: weather.first?.icon ?? "") { imageData in
             if let imageData = imageData {
                 completion(imageData)
             }

@@ -13,6 +13,7 @@ protocol PlaceListTableViewProtocol: AnyObject {
     func deleteRow(indexPath: IndexPath)
     func insertRow()
     func reloadRows(indexPath: IndexPath)
+    func reloadAllRows()
     func showError(message: String)
 }
 
@@ -31,7 +32,7 @@ class PlaceListTableViewController: UITableViewController {
     // MARK: - Methods of ViewController's Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.getCurrentPlace()
+//        presenter.getCurrentPlace()
         createSearchBar()
         tableView.register(PlaceTableViewCell.self, forCellReuseIdentifier: PlaceTableViewCell.cellID)
     }
@@ -84,12 +85,10 @@ class PlaceListTableViewController: UITableViewController {
         case 0:
             if let forecast = presenter.weatherForecastCurrentDestination {
                 delegate.setWeatherForecast(forecast)
-                delegate.rememberCityList(presenter.weatherForecasts)
             }
         case 1:
             let forecast = presenter.weatherForecasts[indexPath.row]
             delegate.setWeatherForecast(forecast)
-            delegate.rememberCityList(presenter.weatherForecasts)
         default:
             break
         }
@@ -175,6 +174,10 @@ extension PlaceListTableViewController: PlaceListTableViewProtocol {
     
     func reloadRows(indexPath: IndexPath) {
         tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
+    
+    func reloadAllRows() {
+        tableView.reloadData()
     }
     
     func showError(message: String) {

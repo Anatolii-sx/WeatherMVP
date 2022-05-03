@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19206" systemVersion="21C52" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CurrentCore" representedClassName="CurrentCore" syncable="YES" codeGenerationType="class">
+        <attribute name="clouds" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="dt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="feelsLike" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="humidity" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pressure" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sunrise" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sunset" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="temp" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="uvi" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="visibility" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="windSpeed" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="forecastInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForecastCore" inverseName="current" inverseEntity="ForecastCore"/>
+        <relationship name="weather" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WeatherCore" inverseName="currentInversion" inverseEntity="WeatherCore"/>
+    </entity>
+    <entity name="DailyCore" representedClassName="DailyCore" syncable="YES" codeGenerationType="class">
+        <attribute name="dt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="forecastInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForecastCore" inverseName="daily" inverseEntity="ForecastCore"/>
+        <relationship name="temp" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TempCore" inverseName="dailyInversion" inverseEntity="TempCore"/>
+        <relationship name="weather" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WeatherCore" inverseName="dailyInversion" inverseEntity="WeatherCore"/>
+    </entity>
+    <entity name="ForecastCore" representedClassName="ForecastCore" syncable="YES" codeGenerationType="class">
+        <attribute name="isCurrentLocation" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="lon" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="timezone" optional="YES" attributeType="String"/>
+        <attribute name="timezoneOffset" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <relationship name="current" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CurrentCore" inverseName="forecastInversion" inverseEntity="CurrentCore"/>
+        <relationship name="daily" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DailyCore" inverseName="forecastInversion" inverseEntity="DailyCore"/>
+        <relationship name="hourly" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="HourlyCore" inverseName="forecastInversion" inverseEntity="HourlyCore"/>
+    </entity>
+    <entity name="HourlyCore" representedClassName="HourlyCore" syncable="YES" codeGenerationType="class">
+        <attribute name="dt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="temp" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="forecastInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ForecastCore" inverseName="hourly" inverseEntity="ForecastCore"/>
+        <relationship name="weather" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WeatherCore" inverseName="hourlyInversion" inverseEntity="WeatherCore"/>
+    </entity>
+    <entity name="TempCore" representedClassName="TempCore" syncable="YES" codeGenerationType="class">
+        <attribute name="max" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="min" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="dailyInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DailyCore" inverseName="temp" inverseEntity="DailyCore"/>
+    </entity>
+    <entity name="WeatherCore" representedClassName="WeatherCore" syncable="YES" codeGenerationType="class">
+        <attribute name="describe" optional="YES" attributeType="String"/>
+        <attribute name="icon" optional="YES" attributeType="String"/>
+        <attribute name="main" optional="YES" attributeType="String"/>
+        <relationship name="currentInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CurrentCore" inverseName="weather" inverseEntity="CurrentCore"/>
+        <relationship name="dailyInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DailyCore" inverseName="weather" inverseEntity="DailyCore"/>
+        <relationship name="hourlyInversion" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="HourlyCore" inverseName="weather" inverseEntity="HourlyCore"/>
+    </entity>
+    <elements>
+        <element name="CurrentCore" positionX="-54" positionY="18" width="128" height="224"/>
+        <element name="DailyCore" positionX="-18" positionY="63" width="128" height="89"/>
+        <element name="ForecastCore" positionX="-63" positionY="-18" width="128" height="164"/>
+        <element name="HourlyCore" positionX="-36" positionY="45" width="128" height="89"/>
+        <element name="TempCore" positionX="18" positionY="144" width="128" height="74"/>
+        <element name="WeatherCore" positionX="0" positionY="117" width="128" height="119"/>
+    </elements>
+</model>

@@ -10,35 +10,36 @@ import Foundation
 protocol TimeTemperatureCellProtocol {
     var time: String { get }
     var temperature: String { get }
-    init(forecast: Hourly, timezone: String)
+    init(forecast: HourlyCore, timezone: String)
     func getImage(completion: @escaping(Data) -> Void)
 }
 
 class TimeTemperatureCellPresenter: TimeTemperatureCellProtocol {
     
-    private var forecast: Hourly
+    private var forecast: HourlyCore
     private var timezone: String
     
     var time: String {
         Formatter.getFormat(
-            unixTime: forecast.dt ?? 0,
+            unixTime: Int(forecast.dt),
             timezone: timezone,
             formatType: Formatter.FormatType.hours.rawValue
         )
     }
     
     var temperature: String {
-        guard let temperature = forecast.temp else { return "" }
-        return "\(temperature.getRound)º"
+        return "\(forecast.temp.getRound)º"
     }
     
-    required init(forecast: Hourly, timezone: String) {
+    required init(forecast: HourlyCore, timezone: String) {
         self.forecast = forecast
         self.timezone = timezone
     }
     
     func getImage(completion: @escaping (Data) -> Void) {
-        NetworkManager.shared.fetchWeatherImage(icon: forecast.weather?.first?.icon ?? "") { imageData in
+        guard let weather = forecast.weather?.allObjects as? [WeatherCore] else { return }
+        
+        NetworkManager.shared.fetchWeatherImage(icon: weather.first?.icon ?? "") { imageData in
             if let imageData = imageData {
                 completion(imageData)
             }

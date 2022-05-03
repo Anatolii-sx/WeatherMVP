@@ -10,33 +10,41 @@ import Foundation
 protocol PlaceCellPresenterProtocol {
     var temperature: String { get }
     var time: String { get }
-    init(forecast: WeatherForecast)
+    init(forecast: ForecastCore)
     func getTitle(completion: @escaping(String) -> Void)
 }
 
 class PlaceCellPresenter: PlaceCellPresenterProtocol {
 
-    private var forecast: WeatherForecast
+    private var forecast: ForecastCore
     
     var temperature: String {
-        "\(forecast.current?.temp?.getRound ?? 0 )º"
+        "\(forecast.current?.temp.getRound ?? 0 )º"
     }
     
     var time: String {
         Formatter.getFormat(
-            unixTime: forecast.current?.dt ?? 0,
+            unixTime: Int(forecast.current?.dt ?? 0),
             timezone: forecast.timezone ?? "",
             formatType: Formatter.FormatType.hoursAndMinutes.rawValue
         )
     }
     
-    required init(forecast: WeatherForecast) {
+    required init(forecast: ForecastCore) {
         self.forecast = forecast
     }
     
     func getTitle(completion: @escaping(String) -> Void) {
-        GeoCoder.shared.getPlace(latitude: forecast.lat ?? 0, longitude: forecast.lon ?? 0) { place in
-            completion(place)
+        guard let title = forecast.title else { return }
+        
+        if title.isEmpty {
+            GeoCoder.shared.getPlace(latitude: forecast.lat, longitude: forecast.lon) { place in
+                self.forecast.title = place
+                StorageManager.shared.saveContext()
+                completion(place)
+            }
+        } else {
+            completion(title)
         }
     }
 }
